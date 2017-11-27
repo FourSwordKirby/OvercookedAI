@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Item : MonoBehaviour {
+public class ItemManager : MonoBehaviour {
 
-    public const int NOTHING_ID = -1;
-    public const int TABLE_ID = -2;
+    public List<Item> ItemList;
 
-    public ItemType MyItemType;
+    public Item GetItem(int id)
+    {
+        return ItemList[id];
+    }
 
 	// Use this for initialization
 	void Start () {

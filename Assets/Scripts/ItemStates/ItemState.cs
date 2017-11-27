@@ -10,4 +10,6 @@ public abstract class ItemState : ICloneable {
     }
 
     public abstract object Clone();
+    public abstract override bool Equals(object obj);
+    public abstract override int GetHashCode();
 }
