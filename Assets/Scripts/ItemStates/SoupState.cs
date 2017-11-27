@@ -9,9 +9,10 @@ public class SoupState : ItemState {
     public bool IsSpawned;
     public List<int> ContainedIngredientIDs;
 
-    private SoupState(int id, List<int> containedIngredientIDs)
+    private SoupState(int id, bool isSpawned, List<int> containedIngredientIDs)
         : base(id)
     {
+        IsSpawned = isSpawned;
         ContainedIngredientIDs = containedIngredientIDs;
     }
 
@@ -24,7 +25,7 @@ public class SoupState : ItemState {
 
     public override object Clone()
     {
-        return new SoupState(ID, new List<int>(ContainedIngredientIDs));
+        return new SoupState(ID, IsSpawned, new List<int>(ContainedIngredientIDs));
     }
 
     public override bool Equals(object obj)
