@@ -19,6 +19,11 @@ public class PotState : ItemState
         ItemIDsInPot = Enumerable.Repeat(Item.NOTHING_ID, MAX_ITEMS_PER_POT).ToList();
     }
 
+    public bool IsFree()
+    {
+        throw new NotImplementedException();
+    }
+
     public override object Clone()
     {
         return new PotState(ID, new List<int>(ItemIDsInPot));

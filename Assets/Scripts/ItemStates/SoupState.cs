@@ -2,24 +2,20 @@
 using System.Collections.Generic;
 using System;
 
-public class SoupState : ItemState {
-
+public class SoupState : MealState {
     const int MAX_INGREDIENTS_PER_SOUP = 3;
-
-    public bool IsSpawned;
-    public List<int> ContainedIngredientIDs;
-
-    private SoupState(int id, List<int> containedIngredientIDs)
-        : base(id)
-    {
-        ContainedIngredientIDs = containedIngredientIDs;
-    }
 
     public SoupState(int id)
         : base(id)
     {
         IsSpawned = false;
         ContainedIngredientIDs = Enumerable.Repeat(Item.NOTHING_ID, MAX_INGREDIENTS_PER_SOUP).ToList();
+    }
+
+    private SoupState(int id, List<int> containedIngredientIDs)
+    : base(id)
+    {
+        ContainedIngredientIDs = containedIngredientIDs;
     }
 
     public override object Clone()

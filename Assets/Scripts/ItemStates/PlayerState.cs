@@ -6,6 +6,11 @@
         HoldingItemID = Item.NOTHING_ID;
     }
 
+    public bool HandsFree()
+    {
+        return HoldingItemID == Item.NOTHING_ID;
+    }
+
     public override bool Equals(object obj)
     {
         PlayerState otherState = obj as PlayerState;

@@ -11,7 +11,9 @@ public class Planner {
     /// The current goal of the planner, it is allowed to change during the course of the game?
     /// </summary>
     public Goal goal;
-    
+
+    public ItemManager itemManager;
+
     public List<Action> Search(AIState startState)
     {
         Dictionary<AIState, List<Action>> closedStates = new Dictionary<AIState, List<Action>>();
@@ -30,7 +32,7 @@ public class Planner {
             if (goal.IsGoal(currentState))
                 return currentActions;
 
-            List<Action> validActions = getValidActions(currentState);
+            List<Action> validActions = GetValidActions(currentState);
 
             foreach(Action action in validActions)
             {
@@ -43,7 +45,7 @@ public class Planner {
                 latestActions.AddRange(currentActions);
                 latestActions.Add(action);
 
-                openStates.Enqueue(new KeyValuePair<AIState, List<Action>>(newState, latestActions), currentActions.Count + heuristic(newState));
+                openStates.Enqueue(new KeyValuePair<AIState, List<Action>>(newState, latestActions), currentActions.Count + Heuristic(newState));
             }
         }
 
@@ -55,8 +57,88 @@ public class Planner {
     /// Used to get all of the valid actions for the current state
     /// </summary>
     /// <returns></returns>
-    public List<Action> getValidActions(AIState state)
+    public List<Action> GetValidActions(AIState state)
     {
+        List<Action> validActions = new List<Action>();
+
+        //Waiting around
+        validActions.Add(new IdleAction());
+
+        //Things you can do when your hands are free
+        if(state.CurrentPlayerState.HandsFree())
+        {
+            //Spawning items
+            foreach (IngredientType type in System.Enum.GetValues(typeof(IngredientType)))
+            {
+                SpawnAction spawnAction = new SpawnAction(type);
+                if(spawnAction.isValid(state))
+                    validActions.Add(spawnAction);
+            }
+
+            PickUpAction pickupAction;
+            //Picking up everything
+            //Ingredients
+            foreach (IngredientState ingredient in state.IngredientStateList)
+            {
+                if(!ingredient.IsCooking)
+                {
+                    pickupAction = new PickUpAction(ingredient.ID);
+                    validActions.Add(pickupAction);
+                }
+            }
+
+            //Pots
+            foreach(PotState pot in state.PotStateList)
+            {
+                pickupAction = new PickUpAction(pot.ID);
+                validActions.Add(pickupAction);
+            }
+
+            //Plates
+            foreach (PlateState plate in state.PlateStateList)
+            {
+                pickupAction = new PickUpAction(plate.ID);
+                validActions.Add(pickupAction);
+            }
+
+        }
+
+        //Things you can do when you have something in hand
+        else
+        {
+            DropOffAction dropoffAction;
+            ItemType type = itemManager.GetItem(state.CurrentPlayerState.HoldingItemID).MyItemType;
+
+            if (type == ItemType.INGREDIENT)
+            {
+                //Putting things on the table
+                dropoffAction = new DropOffAction(state.CurrentTableState.ID);
+                validActions.Add(dropoffAction);
+
+                //Moving ingredients to a cutting board
+                foreach (BoardState board in state.BoardStateList)
+                {
+                    if(board.IsFree())
+                    {
+                        dropoffAction = new DropOffAction(board.ID);
+                        validActions.Add(dropoffAction);
+                    }
+                }
+
+
+                //Moving ingredients to a pot
+                foreach (PotState pot in state.PotStateList)
+                {
+                    if (pot.IsFree())
+                    {
+                        dropoffAction = new DropOffAction(pot.ID);
+                        validActions.Add(dropoffAction);
+                    }
+                }
+            }
+        }
+
+
         Debug.Log("Implement me!!");
         return null;
     }
@@ -65,7 +147,7 @@ public class Planner {
     /// Returns a heuristic for the distance of the current game state to the goal
     /// </summary>
     /// <returns></returns>
-    public float heuristic(AIState state)
+    public float Heuristic(AIState state)
     {
         Debug.Log("Implement a heuristic here");
         return 0;

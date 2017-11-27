@@ -6,13 +6,15 @@ public class IngredientState : ItemState {
     public IngredientType Ingredient;
     public bool IsSpawned;
     public bool IsPrepared;
+    public bool IsCooking;
 
-    public IngredientState(int id, IngredientType ingredientTypeName, bool isSpawned, bool isPrepared)
+    public IngredientState(int id, IngredientType ingredientTypeName, bool isSpawned, bool isPrepared, bool isCooking)
         : base(id)
     {
         Ingredient = ingredientTypeName;
         IsSpawned = isSpawned;
         IsPrepared = isPrepared;
+        IsCooking = isCooking;
     }
 
     public override bool Equals(object obj)
@@ -36,7 +38,8 @@ public class IngredientState : ItemState {
         return this.ID == otherState.ID
             && this.Ingredient == otherState.Ingredient
             && this.IsSpawned == otherState.IsSpawned
-            && this.IsPrepared == otherState.IsPrepared;
+            && this.IsPrepared == otherState.IsPrepared
+            && this.IsCooking == otherState.IsCooking;
     }
 
     public override int GetHashCode()
@@ -44,8 +47,9 @@ public class IngredientState : ItemState {
         int ret = 0;
         ret |= (ID << 7);
         ret |= ((int)Ingredient << 2); // Assumes no more than 32 ingredients
-        ret |= ((IsPrepared ? 1 : 0) << 1);
         ret |= IsSpawned ? 1 : 0;
+        ret |= ((IsPrepared ? 1 : 0) << 1);
+        ret |= ((IsCooking ? 1 : 0) << 2);
         return ret;
     }
 
