@@ -4,7 +4,7 @@ public class PlateState : ItemState
 {
     public int HoldingItemID;
 
-    public PlateState(int id) : base(id)
+    public PlateState(int id) : base(id, ItemType.PLATE)
     {
         HoldingItemID = Item.NOTHING_ID;
     }

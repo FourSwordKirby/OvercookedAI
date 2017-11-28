@@ -8,7 +8,7 @@ public abstract class MealState : ItemState {
     public List<int> ContainedIngredientIDs;
 
     public MealState(int id)
-        : base(id)
+        : base(id, ItemType.MEAL)
     {
     }
 }

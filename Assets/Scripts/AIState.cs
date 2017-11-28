@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AIState : ICloneable {
-    public List<IngredientState> IngredientStateList;
-    public List<PotState> PotStateList;
-    public List<PlateState> PlateStateList;
-    public List<MealState> MealStateList;
-    public List<BoardState> BoardStateList;
+    public List<ItemState> ItemStateList;
+
+    public List<int> IngredientStateIndexList;
+    public List<int> PotStateIndexList;
+    public List<int> PlateStateIndexList;
+    public List<int> MealStateIndexList;
+    public List<int> BoardStateIndexList;
+
     public TableState CurrentTableState;
     public PlayerState CurrentPlayerState;
 

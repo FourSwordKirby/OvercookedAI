@@ -11,7 +11,7 @@ public interface Action
 
 public class IdleAction : Action
 {
-    public IdleAction()  {    };
+    public IdleAction()  {    }
 
     public AIState ApplyAction(AIState currentState)
     {

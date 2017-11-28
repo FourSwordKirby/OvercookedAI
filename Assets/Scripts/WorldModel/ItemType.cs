@@ -2,5 +2,8 @@
 {
     PLATE,
     POT,
-    INGREDIENT
+    INGREDIENT,
+    BOARD,
+    MEAL,
+    TABLE
 }

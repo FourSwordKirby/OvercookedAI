@@ -3,10 +3,12 @@
 public abstract class ItemState : ICloneable {
 
     public int ID;
+    public ItemType MyItemType;
 
-	public ItemState(int id)
+	public ItemState(int id, ItemType itemType)
     {
         ID = id;
+        MyItemType = itemType;
     }
 
     public abstract object Clone();

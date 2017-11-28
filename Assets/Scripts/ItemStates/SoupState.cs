@@ -5,19 +5,13 @@ using System;
 public class SoupState : MealState {
     const int MAX_INGREDIENTS_PER_SOUP = 3;
 
-<<<<<<< HEAD
-    public bool IsSpawned;
-    public List<int> ContainedIngredientIDs;
-
     private SoupState(int id, bool isSpawned, List<int> containedIngredientIDs)
         : base(id)
     {
         IsSpawned = isSpawned;
         ContainedIngredientIDs = containedIngredientIDs;
     }
-
-=======
->>>>>>> cc28ca7c9f2f56ce2988d59b5f05ac8c31ea7f38
+    
     public SoupState(int id)
         : base(id)
     {

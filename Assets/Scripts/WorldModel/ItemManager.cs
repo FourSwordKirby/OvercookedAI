@@ -5,7 +5,7 @@ using UnityEngine;
 public class ItemManager : MonoBehaviour {
 
     public List<Item> ItemList;
-    public Table TableItem;
+    public Item TableItem;
 
     public Item GetItem(int id)
     {
@@ -25,7 +25,7 @@ public class ItemManager : MonoBehaviour {
             ItemList.AddRange(spawner.SpawnedIngredients);
         }
 
-        
+        TableItem = FindObjectOfType<Table>();
     }
 
     // Use this for initialization

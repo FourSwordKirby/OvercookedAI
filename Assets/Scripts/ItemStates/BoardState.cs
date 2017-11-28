@@ -5,7 +5,7 @@ public class BoardState : ItemState
     public int HoldingItemID;
 
     public BoardState(int id)
-        : base(id)
+        : base(id, ItemType.BOARD)
     {
         HoldingItemID = Item.NOTHING_ID;
     }

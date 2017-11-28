@@ -9,15 +9,16 @@ public class PotState : ItemState
     public List<int> ItemIDsInPot;
 
     private PotState(int id, List<int> containingItemIDs)
-        : base (id)
+        : base (id, ItemType.POT)
     {
         ItemIDsInPot = containingItemIDs;
     }
 
-    public PotState(int id) : base(id)
+    public PotState(int id) : base(id, ItemType.POT)
     {
-        ItemIDsInPot = Enumerable.Repeat(Item.NOTHING_ID, MAX_ITEMS_PER_POT).ToList();
+        ItemIDsInPot = new List<int>(MAX_ITEMS_PER_POT);
     }
+    
 
     public bool HasCapacity(int AddedItemCount)
     {

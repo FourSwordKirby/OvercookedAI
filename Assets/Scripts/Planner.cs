@@ -78,8 +78,9 @@ public class Planner {
             PickUpAction pickupAction;
             //Picking up everything
             //Ingredients
-            foreach (IngredientState ingredient in state.IngredientStateList)
+            foreach (int ingredientID in state.IngredientStateIndexList)
             {
+                IngredientState ingredient = state.ItemStateList[ingredientID] as IngredientState;
                 if(!ingredient.IsCooking)
                 {
                     pickupAction = new PickUpAction(ingredient.ID);
@@ -88,15 +89,17 @@ public class Planner {
             }
 
             //Pots
-            foreach(PotState pot in state.PotStateList)
+            foreach(int potID in state.PotStateIndexList)
             {
+                PotState pot = state.ItemStateList[potID] as PotState;
                 pickupAction = new PickUpAction(pot.ID);
                 validActions.Add(pickupAction);
             }
 
             //Plates
-            foreach (PlateState plate in state.PlateStateList)
+            foreach (int plateID in state.PlateStateIndexList)
             {
+                PlateState plate = state.ItemStateList[plateID] as PlateState;
                 pickupAction = new PickUpAction(plate.ID);
                 validActions.Add(pickupAction);
             }
@@ -108,8 +111,8 @@ public class Planner {
         {
             DropOffAction dropoffAction;
             TransferAction transferAction;
-            Item item = itemManager.GetItem(state.CurrentPlayerState.HoldingItemID);
-            ItemType type = item.MyItemType;
+            ItemState itemState = state.ItemStateList[state.CurrentPlayerState.HoldingItemID];
+            ItemType type = itemState.MyItemType;
 
             if (type == ItemType.INGREDIENT)
             {
@@ -118,8 +121,9 @@ public class Planner {
                 validActions.Add(dropoffAction);
 
                 //Moving ingredients to a cutting board
-                foreach (BoardState board in state.BoardStateList)
+                foreach (int boardID in state.BoardStateIndexList)
                 {
+                    BoardState board = state.ItemStateList[boardID] as BoardState;
                     if(board.IsFree())
                     {
                         dropoffAction = new DropOffAction(board.ID);
@@ -128,8 +132,9 @@ public class Planner {
                 }
 
                 //Moving ingredients to a pot
-                foreach (PotState pot in state.PotStateList)
+                foreach (int potID in state.PotStateIndexList)
                 {
+                    PotState pot = state.ItemStateList[potID] as PotState;
                     if (pot.HasCapacity(1))
                     {
                         dropoffAction = new DropOffAction(pot.ID);
@@ -138,8 +143,9 @@ public class Planner {
                 }
 
                 //Moving ingredients to a plate
-                foreach (PlateState plate in state.PlateStateList)
+                foreach (int plateID in state.PlateStateIndexList)
                 {
+                    PlateState plate = state.ItemStateList[plateID] as PlateState;
                     if (plate.IsFree())
                     {
                         dropoffAction = new DropOffAction(plate.ID);
@@ -160,8 +166,9 @@ public class Planner {
                     throw new System.NotImplementedException("Need a way to check that the pot is non-empty");
 
                     //Moving the meal to a pot
-                    foreach (PotState pot in state.PotStateList)
+                    foreach (int potID in state.PotStateIndexList)
                     {
+                        PotState pot = state.ItemStateList[potID] as PotState;
                         if (pot.ID == state.CurrentPlayerState.HoldingItemID)
                             continue;
 
@@ -174,8 +181,9 @@ public class Planner {
                     }
 
                     //Moving the meal to a plate
-                    foreach (PlateState plate in state.PlateStateList)
+                    foreach (int plateID in state.PlateStateIndexList)
                     {
+                        PlateState plate = state.ItemStateList[plateID] as PlateState;
                         if (plate.IsFree())
                         {
                             transferAction = new TransferAction(plate.ID);
@@ -201,8 +209,9 @@ public class Planner {
                     validActions.Add(submitAction);
 
                     //Moving to a pot
-                    foreach (PotState pot in state.PotStateList)
+                    foreach (int potID in state.PotStateIndexList)
                     {
+                        PotState pot = state.ItemStateList[potID] as PotState;
                         throw new System.NotImplementedException("Need to check that the pot has the capacity to store the plate's contents");
                         if (pot.HasCapacity(200))
                         {
@@ -212,8 +221,9 @@ public class Planner {
                     }
 
                     //Moving the meal to a plate
-                    foreach (PlateState plate in state.PlateStateList)
+                    foreach (int plateID in state.PlateStateIndexList)
                     {
+                        PlateState plate = state.ItemStateList[plateID] as PlateState;
                         if (plate.ID == state.CurrentPlayerState.HoldingItemID)
                             continue;
 

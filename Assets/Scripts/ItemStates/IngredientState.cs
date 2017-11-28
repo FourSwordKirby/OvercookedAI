@@ -9,7 +9,7 @@ public class IngredientState : ItemState {
     public bool IsCooking;
 
     public IngredientState(int id, IngredientType ingredientTypeName, bool isSpawned, bool isPrepared, bool isCooking)
-        : base(id)
+        : base(id, ItemType.INGREDIENT)
     {
         Ingredient = ingredientTypeName;
         IsSpawned = isSpawned;

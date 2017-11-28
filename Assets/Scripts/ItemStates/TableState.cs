@@ -4,16 +4,17 @@ using System.Linq;
 
 public class TableState : ItemState {
     /// <summary>
-    /// A list of item IDs which are on the infinite sized table.
+    /// A list of item IDs which are on the infinite sized table. Use the AddItem and RemoveItem methods
+    /// for adding and subtracting from this list.
     /// </summary>
-    public List<int> ItemIDsOnTable { get; private set; }
+    public List<int> ItemIDsOnTable;
 
-    public TableState(int id) : base(id)
+    public TableState(int id) : base(id, ItemType.TABLE)
     {
         ItemIDsOnTable = new List<int>();
     }
 
-    private TableState(int id, List<int> itemIDsOnTable) : base(id)
+    private TableState(int id, List<int> itemIDsOnTable) : base(id, ItemType.TABLE)
     {
         ItemIDsOnTable = itemIDsOnTable;
     }
