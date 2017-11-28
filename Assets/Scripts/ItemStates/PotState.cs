@@ -19,7 +19,7 @@ public class PotState : ItemState
         ItemIDsInPot = Enumerable.Repeat(Item.NOTHING_ID, MAX_ITEMS_PER_POT).ToList();
     }
 
-    public bool IsFree()
+    public bool HasCapacity(int AddedItemCount)
     {
         throw new NotImplementedException();
     }

@@ -131,11 +131,8 @@ public class PrepareAction : Action
 //Used to drop off a final meal
 public class SubmitOrderAction : Action
 {
-    int id;
-
-    public SubmitOrderAction(int id)
+    public SubmitOrderAction()
     {
-        this.id = id;
     }
 
     public AIState ApplyAction(AIState currentState)
