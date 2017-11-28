@@ -9,6 +9,11 @@ public class PlateState : ItemState
         HoldingItemID = Item.NOTHING_ID;
     }
 
+    public bool IsFree()
+    {
+        return HoldingItemID == Item.NOTHING_ID;
+    }
+
     public override object Clone()
     {
         return MemberwiseClone();

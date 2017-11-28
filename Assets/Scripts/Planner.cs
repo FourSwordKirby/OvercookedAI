@@ -107,7 +107,9 @@ public class Planner {
         else
         {
             DropOffAction dropoffAction;
-            ItemType type = itemManager.GetItem(state.CurrentPlayerState.HoldingItemID).MyItemType;
+            TransferAction transferAction;
+            Item item = itemManager.GetItem(state.CurrentPlayerState.HoldingItemID);
+            ItemType type = item.MyItemType;
 
             if (type == ItemType.INGREDIENT)
             {
@@ -125,14 +127,101 @@ public class Planner {
                     }
                 }
 
-
                 //Moving ingredients to a pot
                 foreach (PotState pot in state.PotStateList)
                 {
-                    if (pot.IsFree())
+                    if (pot.HasCapacity(1))
                     {
                         dropoffAction = new DropOffAction(pot.ID);
                         validActions.Add(dropoffAction);
+                    }
+                }
+
+                //Moving ingredients to a plate
+                foreach (PlateState plate in state.PlateStateList)
+                {
+                    if (plate.IsFree())
+                    {
+                        dropoffAction = new DropOffAction(plate.ID);
+                        validActions.Add(dropoffAction);
+                    }
+                }
+            }
+
+            if(type == ItemType.POT)
+            {
+                //Putting things on the table
+                dropoffAction = new DropOffAction(state.CurrentTableState.ID);
+                validActions.Add(dropoffAction);
+
+                
+                if(true)
+                {
+                    throw new System.NotImplementedException("Need a way to check that the pot is non-empty");
+
+                    //Moving the meal to a pot
+                    foreach (PotState pot in state.PotStateList)
+                    {
+                        if (pot.ID == state.CurrentPlayerState.HoldingItemID)
+                            continue;
+
+                        throw new System.NotImplementedException("Need to check that the pot has the capacity to store the plate's contents");
+                        if (pot.HasCapacity(200))
+                        {
+                            transferAction = new TransferAction(pot.ID);
+                            validActions.Add(transferAction);
+                        }
+                    }
+
+                    //Moving the meal to a plate
+                    foreach (PlateState plate in state.PlateStateList)
+                    {
+                        if (plate.IsFree())
+                        {
+                            transferAction = new TransferAction(plate.ID);
+                            validActions.Add(transferAction);
+                        }
+                    }
+                }
+            }
+
+            if (type == ItemType.PLATE)
+            {
+                //Putting things on the table
+                dropoffAction = new DropOffAction(state.CurrentTableState.ID);
+                validActions.Add(dropoffAction);
+
+                //If the plate is non-empty
+                if (true)
+                {
+                    throw new System.NotImplementedException("Need a way to check that the plate is non-empty");
+
+                    //Submitting the meal
+                    SubmitOrderAction submitAction = new SubmitOrderAction();
+                    validActions.Add(submitAction);
+
+                    //Moving to a pot
+                    foreach (PotState pot in state.PotStateList)
+                    {
+                        throw new System.NotImplementedException("Need to check that the pot has the capacity to store the plate's contents");
+                        if (pot.HasCapacity(200))
+                        {
+                            transferAction = new TransferAction(pot.ID);
+                            validActions.Add(transferAction);
+                        }
+                    }
+
+                    //Moving the meal to a plate
+                    foreach (PlateState plate in state.PlateStateList)
+                    {
+                        if (plate.ID == state.CurrentPlayerState.HoldingItemID)
+                            continue;
+
+                        if (plate.IsFree())
+                        {
+                            transferAction = new TransferAction(plate.ID);
+                            validActions.Add(transferAction);
+                        }
                     }
                 }
             }
