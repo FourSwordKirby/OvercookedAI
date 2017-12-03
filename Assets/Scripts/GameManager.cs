@@ -12,21 +12,27 @@ public class GameManager : MonoBehaviour {
     public int timeLimit;
     public int currentTime;
 
-    public List<Ingredient> availableIngredients;
-    public List<Pot> pots;
-    public List<Plane> plates;
+    public AIState currentState;
+    public List<AIState> observedStates;
 
-	// Use this for initialization
-	void Start () {
-        //Planning stuff?		
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    private Planner planner = new Planner();
+
+    // Update is called once per frame
+    void Update () {
         if(Input.GetKeyDown(KeyCode.Space))
+        {
+            planner.Search(currentState);
+        }
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             currentTime++;
             print("Next Timestep");
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            currentTime--;
+            print("Previous Timestep");
         }
 	}
 }

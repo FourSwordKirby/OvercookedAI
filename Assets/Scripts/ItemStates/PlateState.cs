@@ -9,7 +9,7 @@ public class PlateState : ItemState
         HoldingItemID = Item.NOTHING_ID;
     }
 
-    public bool IsFree()
+    public bool IsEmpty()
     {
         return HoldingItemID == Item.NOTHING_ID;
     }

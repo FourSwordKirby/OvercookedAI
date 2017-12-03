@@ -19,6 +19,15 @@ public class PotState : ItemState
         ItemIDsInPot = new List<int>(MAX_ITEMS_PER_POT);
     }
     
+    public int CurrentMealSize()
+    {
+        return ItemIDsInPot.Count;
+    }
+
+    public bool IsEmpty()
+    {
+        return ItemIDsInPot.Count == 0;
+    }
 
     public bool HasCapacity(int AddedItemCount)
     {

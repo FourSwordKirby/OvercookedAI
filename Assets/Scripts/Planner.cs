@@ -45,7 +45,7 @@ public class Planner {
                 latestActions.AddRange(currentActions);
                 latestActions.Add(action);
 
-                openStates.Enqueue(new KeyValuePair<AIState, List<Action>>(newState, latestActions), currentActions.Count + Heuristic(newState));
+                openStates.Enqueue(new KeyValuePair<AIState, List<Action>>(newState, latestActions), latestActions.Count + Heuristic(newState));
             }
         }
 
@@ -146,7 +146,7 @@ public class Planner {
                 foreach (int plateID in state.PlateStateIndexList)
                 {
                     PlateState plate = state.ItemStateList[plateID] as PlateState;
-                    if (plate.IsFree())
+                    if (plate.IsEmpty())
                     {
                         dropoffAction = new DropOffAction(plate.ID);
                         validActions.Add(dropoffAction);
@@ -156,35 +156,34 @@ public class Planner {
 
             if(type == ItemType.POT)
             {
-                //Putting things on the table
+                PotState pot = itemState as PotState;
+
+                //Putting the pot on the table
                 dropoffAction = new DropOffAction(state.CurrentTableState.ID);
                 validActions.Add(dropoffAction);
 
-                
-                if(true)
+                if (!pot.IsEmpty())
                 {
-                    throw new System.NotImplementedException("Need a way to check that the pot is non-empty");
-
-                    //Moving the meal to a pot
+                    //Moving the contents to another pot
                     foreach (int potID in state.PotStateIndexList)
                     {
-                        PotState pot = state.ItemStateList[potID] as PotState;
-                        if (pot.ID == state.CurrentPlayerState.HoldingItemID)
+                        PotState pot2 = state.ItemStateList[potID] as PotState;
+                        if (po2t.ID == pot.ID)
                             continue;
 
-                        throw new System.NotImplementedException("Need to check that the pot has the capacity to store the plate's contents");
-                        if (pot.HasCapacity(200))
+                        if (pot2.HasCapacity(pot.CurrentMealSize()))
                         {
                             transferAction = new TransferAction(pot.ID);
                             validActions.Add(transferAction);
                         }
                     }
+                   
 
                     //Moving the meal to a plate
                     foreach (int plateID in state.PlateStateIndexList)
                     {
                         PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        if (plate.IsFree())
+                        if (plate.IsEmpty())
                         {
                             transferAction = new TransferAction(plate.ID);
                             validActions.Add(transferAction);
@@ -195,39 +194,41 @@ public class Planner {
 
             if (type == ItemType.PLATE)
             {
+                PlateState plate = itemState as PlateState;
+
                 //Putting things on the table
                 dropoffAction = new DropOffAction(state.CurrentTableState.ID);
                 validActions.Add(dropoffAction);
 
                 //If the plate is non-empty
-                if (true)
+                if (!plate.IsEmpty())
                 {
-                    throw new System.NotImplementedException("Need a way to check that the plate is non-empty");
+                    MealState heldMeal = state.ItemStateList[plate.HoldingItemID] as MealState;
 
                     //Submitting the meal
                     SubmitOrderAction submitAction = new SubmitOrderAction();
                     validActions.Add(submitAction);
 
-                    //Moving to a pot
+                    //Moving meal to a pot
                     foreach (int potID in state.PotStateIndexList)
                     {
                         PotState pot = state.ItemStateList[potID] as PotState;
-                        throw new System.NotImplementedException("Need to check that the pot has the capacity to store the plate's contents");
-                        if (pot.HasCapacity(200))
+
+                        if (pot.HasCapacity(heldMeal.MealSize()))
                         {
                             transferAction = new TransferAction(pot.ID);
                             validActions.Add(transferAction);
                         }
                     }
 
-                    //Moving the meal to a plate
+                    //Moving the meal to another plate
                     foreach (int plateID in state.PlateStateIndexList)
                     {
-                        PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        if (plate.ID == state.CurrentPlayerState.HoldingItemID)
+                        PlateState plate2 = state.ItemStateList[plateID] as PlateState;
+                        if (plate2.ID == plate.ID)
                             continue;
 
-                        if (plate.IsFree())
+                        if (plate2.IsEmpty())
                         {
                             transferAction = new TransferAction(plate.ID);
                             validActions.Add(transferAction);
@@ -237,9 +238,7 @@ public class Planner {
             }
         }
 
-
-        Debug.Log("Implement me!!");
-        return null;
+        return validActions;
     }
 
     /// <summary>

@@ -10,5 +10,11 @@ public abstract class MealState : ItemState {
     public MealState(int id)
         : base(id, ItemType.MEAL)
     {
+        ContainedIngredientIDs = new List<int>();
+    }
+
+    public int MealSize()
+    {
+        return ContainedIngredientIDs.Count;
     }
 }
