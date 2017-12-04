@@ -45,8 +45,8 @@ public class IngredientState : ItemState {
     public override int GetHashCode()
     {
         int ret = 0;
-        ret |= (ID << 7);
-        ret |= ((int)Ingredient << 2); // Assumes no more than 32 ingredients
+        ret |= (ID << 8);
+        ret |= ((int)Ingredient << 3); // Assumes no more than 32 ingredients
         ret |= IsSpawned ? 1 : 0;
         ret |= ((IsPrepared ? 1 : 0) << 1);
         ret |= ((IsCooking ? 1 : 0) << 2);
@@ -55,6 +55,6 @@ public class IngredientState : ItemState {
 
     public override object Clone()
     {
-        throw new NotImplementedException();
+        return MemberwiseClone();
     }
 }

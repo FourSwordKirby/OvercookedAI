@@ -16,7 +16,7 @@ public class Planner {
 
     public List<Action> Search(AIState startState)
     {
-        Dictionary<AIState, List<Action>> closedStates = new Dictionary<AIState, List<Action>>();
+        Dictionary<AIState, List<Action>> closedStates = new Dictionary<AIState, List<Action>>(new AIStateComparator());
 
         PriorityQueue<KeyValuePair<AIState, List<Action>>> openStates = new PriorityQueue<KeyValuePair<AIState, List<Action>>>();
         openStates.Enqueue(new KeyValuePair<AIState, List<Action>>(startState, new List<Action>()), 0);
