@@ -94,7 +94,7 @@ public class PickUpAction : Action
     public AIState ApplyAction(AIState currentState)
     {
         AIState cloneState = currentState.Clone() as AIState;
-        cloneState.CurrentPlayerState.PickUp(ingredient.ID);
+        cloneState.CurrentPlayerState.PickUp(id);
 
         return cloneState;
     }

@@ -9,9 +9,10 @@ public class MealState : ItemState {
 
     public int cookDuration = 0;
 
-    public MealState(int id, List<int> containingItemIDs)
+    public MealState(int id, bool isSpawned, List<int> containingItemIDs)
         : base(id, ItemType.MEAL)
     {
+        IsSpawned = isSpawned;
         ContainedIngredientIDs = containingItemIDs;
     }
 
@@ -37,7 +38,7 @@ public class MealState : ItemState {
 
     public override object Clone()
     {
-        return new MealState(ID, new List<int>(ContainedIngredientIDs));
+        return new MealState(ID, IsSpawned, new List<int>(ContainedIngredientIDs));
     }
 
     public override bool Equals(object obj)
