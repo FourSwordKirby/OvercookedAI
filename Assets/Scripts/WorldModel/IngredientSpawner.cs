@@ -6,11 +6,16 @@ using UnityEngine;
 public class IngredientSpawner : MonoBehaviour {
 
     public const int MAX_NUMBER_OF_INGREDIENTS = 5;
-    public Item IngredientPrefab;
+    public Ingredient IngredientPrefab;
     public List<Item> SpawnedIngredients;
 
     private void Awake()
     {
-        SpawnedIngredients = Enumerable.Repeat(Instantiate<Item>(IngredientPrefab, transform), MAX_NUMBER_OF_INGREDIENTS).ToList();
+        SpawnedIngredients = new List<Item>();
+        for (int i = 0; i < MAX_NUMBER_OF_INGREDIENTS; ++i)
+        {
+            Ingredient ing = Instantiate<Ingredient>(IngredientPrefab, transform);
+            SpawnedIngredients.Add(ing);
+        }
     }
 }

@@ -8,9 +8,23 @@ public class Item : MonoBehaviour {
     public const int TABLE_ID = -2;
 
     public ItemType MyItemType;
+    public int ID;
 
-	// Use this for initialization
-	void Start () {
+    public static int ItemCount = 0;
+
+    protected void SetID()
+    {
+        ID = ItemCount;
+        ++ItemCount;
+    }
+
+    private void Awake()
+    {
+        SetID();
+    }
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
