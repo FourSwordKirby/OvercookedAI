@@ -7,6 +7,8 @@ public interface Action
 {
     AIState ApplyAction(AIState currentState);
     bool isValid(AIState currentState);
+
+    string ToString(AIState currentState);
 }
 
 public class IdleAction : Action
@@ -31,6 +33,11 @@ public class IdleAction : Action
     public bool isValid(AIState currentState)
     {
         return true;
+    }
+
+    public string ToString(AIState currentState)
+    {
+        return "Idle";
     }
 }
 
@@ -78,6 +85,11 @@ public class SpawnAction : Action
             return currentState.onionSpawnCount < AIState.MAX_INGREDIENT_TYPE_SPAWN;
         else
             throw new NotImplementedException();
+    }
+
+    public string ToString(AIState currentState)
+    {
+        return "Spawn: " + spawnType;
     }
 }
 
@@ -147,6 +159,11 @@ public class PickUpAction : Action
 
             return true;
         }
+    }
+
+    public string ToString(AIState currentState)
+    {
+        return "Picked Up Item: " + currentState.ItemStateList[id];
     }
 }
 
@@ -257,6 +274,11 @@ public class DropOffAction : Action
                 return false;
         }
     }
+
+    public string ToString(AIState currentState)
+    {
+        return "Dropped off item at: " + currentState.ItemStateList[id];
+    }
 }
 
 //Used for things like moving a soup from a plate to a pot etc.
@@ -360,6 +382,12 @@ public class TransferAction : Action
             }
         }
     }
+
+    public string ToString(AIState currentState)
+    {
+        return "Transfered contents of " + currentState.ItemStateList[currentState.CurrentPlayerState.HoldingItemID] 
+            + " to " + currentState.ItemStateList[id];
+    }
 }
 
 //Used to prepare an ingredient
@@ -404,6 +432,11 @@ public class PrepareAction : Action
             }
         }
     }
+
+    public string ToString(AIState currentState)
+    {
+        return "Preparing item on " + currentState.ItemStateList[id];
+    }
 }
 
 //Used to drop off a final meal
@@ -420,12 +453,12 @@ public class SubmitOrderAction : Action
         int heldItemID = cloneState.CurrentPlayerState.HoldingItemID;
 
         PlateState plate = (cloneState.ItemStateList[heldItemID] as PlateState);
+        MealState meal = cloneState.ItemStateList[plate.MealID] as MealState;
 
         //Removing the meal from the plate
         plate.MealID = cloneState.MealStateIndexList.FindLast(x => cloneState.ItemStateList[x].MyItemType == ItemType.MEAL &&
                                                                 (cloneState.ItemStateList[x] as MealState).IsSpawned == false);
 
-        MealState meal = currentState.ItemStateList[plate.MealID] as MealState;
         Debug.Log("Potentially score the meal submission here?");
 
         return cloneState;
@@ -447,5 +480,15 @@ public class SubmitOrderAction : Action
                 return (currentState.ItemStateList[plate.MealID] as MealState).IsSpawned;
             }
         }
+    }
+
+    public string ToString(AIState currentState)
+    {
+        int heldItemID = currentState.CurrentPlayerState.HoldingItemID;
+
+        PlateState plate = (currentState.ItemStateList[heldItemID] as PlateState);
+        MealState meal = currentState.ItemStateList[plate.MealID] as MealState;
+
+        return "Submitting meal " + meal;
     }
 }
