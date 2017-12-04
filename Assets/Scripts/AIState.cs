@@ -23,7 +23,6 @@ public class AIState : ICloneable {
     public int onionSpawnCount;
     public int mushroomSpawnCount;
 
-
     public int GValue;
     public bool IsClosed;
     public AIState Parent;
@@ -41,6 +40,8 @@ public class AIState : ICloneable {
             BoardStateIndexList = this.BoardStateIndexList,
             CurrentTableState = this.CurrentTableState.Clone() as TableState,
             CurrentPlayerState = this.CurrentPlayerState as PlayerState,
+            onionSpawnCount = this.onionSpawnCount,
+            mushroomSpawnCount = this.mushroomSpawnCount,
             GValue = int.MaxValue,
             IsClosed = false,
             Parent = null,
@@ -68,6 +69,8 @@ public class AIStateComparator : IEqualityComparer<AIState>
             int hash = obj.ItemStateList.Aggregate(seed, (current, item) => (current * modifier) + item.GetHashCode());
             hash = (hash * modifier) + obj.CurrentTableState.GetHashCode();
             hash = (hash * modifier) + obj.CurrentPlayerState.GetHashCode();
+            hash = (hash * modifier) + obj.onionSpawnCount;
+            hash = (hash * modifier) + obj.mushroomSpawnCount;
             return hash;
         }
     }
