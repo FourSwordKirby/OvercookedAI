@@ -21,4 +21,9 @@ public class IngredientSpawner : MonoBehaviour {
             SpawnedIngredients.Add(ing);
         }
     }
+
+    private void Start()
+    {
+        FindObjectOfType<ItemManager>().RegisterIngredientSpawner(this);
+    }
 }

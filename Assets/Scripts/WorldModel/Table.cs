@@ -37,6 +37,9 @@ public class Table : Item {
     {
         TableSpace tState = state as TableSpace;
         ItemIDOnTable = tState.ItemIDOnTable;
-        GetItemManager().ItemList[tState.ItemIDOnTable].transform.position = HoldingPosition;
+        if (ItemIDOnTable != Item.NOTHING_ID)
+        {
+            GetItemManager().ItemList[tState.ItemIDOnTable].transform.position = HoldingPosition;
+        }
     }
 }

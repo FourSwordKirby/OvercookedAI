@@ -31,6 +31,10 @@ public class Player : MonoBehaviour {
         }
     }
 
+    public bool IsHolding
+    {
+        get { return HoldingItem != null; }
+    }
 
     private void Awake()
     {
@@ -45,7 +49,7 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        anim.SetBool("IsHolding", HoldingItem != null);
+        anim.SetBool("IsHolding", IsHolding);
 	}
 
     public void LoadState(PlayerState s)

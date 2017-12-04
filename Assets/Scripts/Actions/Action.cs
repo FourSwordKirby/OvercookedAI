@@ -110,7 +110,7 @@ public class PickUpAction : Action
 
         if(!hasCleared)
         {
-            foreach (int boardID in cloneState.TableStateIndexList)
+            foreach (int boardID in cloneState.BoardStateIndexList)
             {
                 BoardState bState = cloneState.ItemStateList[boardID] as BoardState;
                 if (bState.HoldingItemID == id)
@@ -225,7 +225,9 @@ public class DropOffAction : Action
             }
             else if (currentState.ItemStateList[id].MyItemType == ItemType.BOARD)
             {
-                return (currentState.ItemStateList[droppedItemID].MyItemType != ItemType.INGREDIENT);
+                BoardState board = currentState.ItemStateList[id] as BoardState;
+                return (currentState.ItemStateList[droppedItemID].MyItemType == ItemType.INGREDIENT)
+                    && board.IsFree();
             }
             else if (currentState.ItemStateList[id].MyItemType == ItemType.POT)
             {

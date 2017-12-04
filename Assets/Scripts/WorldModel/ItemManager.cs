@@ -4,12 +4,11 @@ using System.Linq;
 using UnityEngine;
 
 public class ItemManager : MonoBehaviour {
-
+    public List<IngredientSpawner> IngredientSpawners = new List<IngredientSpawner>();
     public List<Item> ItemList = new List<Item>();
     public List<int> IngredientIndexList = new List<int>();
     public List<int> TableIndexList = new List<int>();
     public List<int> BoardIndexList = new List<int>();
-    public Table TableItem;
     public Player PlayerObject;
 
     public Item GetItem(int id)
@@ -20,6 +19,11 @@ public class ItemManager : MonoBehaviour {
     private void Awake()
     {
         
+    }
+
+    public void RegisterIngredientSpawner(IngredientSpawner spawner)
+    {
+        IngredientSpawners.Add(spawner);
     }
 
     public void RegisterIngredientItem(Ingredient ingredient)
@@ -48,7 +52,6 @@ public class ItemManager : MonoBehaviour {
     // Use this for initialization
     private void Start ()
     {
-        TableItem = FindObjectOfType<Table>();
         PlayerObject = FindObjectOfType<Player>();
 	}
 

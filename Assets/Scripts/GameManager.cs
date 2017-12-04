@@ -20,29 +20,108 @@ public class GameManager : MonoBehaviour {
     public List<Action> currentPlan;
     public int currentPlanIndex;
 
+    public Player PlayerRef;
+    public GameObject HighlightedObject;
+    public GameObject Highlighter;
+    public GameObject HighlightPrefab;
+    public Action HighlightedAction;
+    public int HighlightedIndex;
+    public AIState CurrentState;
+
+    private void Awake()
+    {
+        Highlighter = Instantiate(HighlightPrefab, transform);
+    }
+
     void Start()
     {
-        //currentState = new AIState();
+        IM = FindObjectOfType<ItemManager>();
+        PlayerRef = FindObjectOfType<Player>();
+        StartCoroutine(LateStart());
+    }
 
-        //BoardState board = new BoardState(0);
-        //IngredientState onion = new IngredientState(1, IngredientType.ONION, false, false, false);
-        //MealState meal = new MealState(3, false, new List<int>());
-        //PotState pot = new PotState(2, meal.ID);
-        //TableSpace table = new TableSpace(4);
 
-        //currentState.ItemStateList = new List<ItemState>() {board,
-        //                                                    onion,
-        //                                                    pot,
-        //                                                    meal,
-        //                                                    table};
-        
-        //currentState.CurrentPlayerState = new PlayerState();
+    IEnumerator LateStart()
+    {
+        yield return new WaitForFixedUpdate();
+        CurrentState = IM.GetWorldState();
+        HighlightedIndex = 0;
+        NextHighlight();
+    }
 
-        //currentState.BoardStateIndexList = new List<int> { 0 };
-        //currentState.IngredientStateIndexList = new List<int>() { 1 };
-        //currentState.PotStateIndexList = new List<int>() { 2 };
-        //currentState.MealStateIndexList = new List<int>() { 3 };
-        //currentState.PlateStateIndexList = new List<int>() { };
+    private void PrevHighlight()
+    {
+        HighlightedObject = GetHighlight(-1);
+        Highlighter.transform.position = new Vector3(
+            HighlightedObject.transform.position.x,
+            Highlighter.transform.position.y,
+            HighlightedObject.transform.position.z);
+    }
+
+    private void NextHighlight()
+    {
+        HighlightedObject = GetHighlight(1);
+        Highlighter.transform.position = new Vector3(
+            HighlightedObject.transform.position.x,
+            Highlighter.transform.position.y,
+            HighlightedObject.transform.position.z);
+    }
+
+    private GameObject GetHighlight(int step)
+    {
+        HighlightedIndex += step;
+        if (HighlightedIndex >= IM.ItemList.Count)
+        {
+            HighlightedIndex = -IM.IngredientSpawners.Count;
+        }
+        else if (HighlightedIndex < -IM.IngredientSpawners.Count)
+        {
+            HighlightedIndex = IM.ItemList.Count - 1;
+        }
+
+        if (HighlightedIndex >= 0)
+        {
+            if (!PlayerRef.IsHolding)
+            {
+                PickUpAction puAction = new PickUpAction(HighlightedIndex);
+                if (puAction.isValid(CurrentState))
+                {
+                    HighlightedAction = puAction;
+                    return IM.ItemList[HighlightedIndex].gameObject;
+                }
+                else
+                {
+                    return GetHighlight(step);
+                }
+            }
+            else
+            {
+                DropOffAction doAction = new DropOffAction(HighlightedIndex);
+                if (doAction.isValid(CurrentState))
+                {
+                    HighlightedAction = doAction;
+                    return IM.ItemList[HighlightedIndex].gameObject;
+                }
+                else
+                {
+                    return GetHighlight(step);
+                }
+            }
+        }
+        else
+        {
+            int spawnerIndex = ~HighlightedIndex;
+            SpawnAction sAction = new SpawnAction(IM.IngredientSpawners[spawnerIndex].MyIngredientType);
+            if (sAction.isValid(CurrentState))
+            {
+                HighlightedAction = sAction;
+                return IM.IngredientSpawners[spawnerIndex].gameObject;
+            }
+            else
+            {
+                return GetHighlight(step);
+            }
+        }
     }
 
     // Update is called once per frame
@@ -83,6 +162,26 @@ public class GameManager : MonoBehaviour {
 
             IM.LoadWorldState(observedStates[currentTime]);
             currentPlanIndex++;
+        }
+
+
+        // Choose highlighted item
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            NextHighlight();
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            PrevHighlight();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            Debug.Log("Applying action...");
+            CurrentState = HighlightedAction.ApplyAction(CurrentState);
+            IM.LoadWorldState(CurrentState);
+            NextHighlight();
         }
 	}
 

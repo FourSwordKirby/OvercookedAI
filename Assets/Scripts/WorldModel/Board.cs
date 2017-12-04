@@ -33,8 +33,12 @@ public class Board : Item {
 
     private void Awake()
     {
-        GetItemManager().RegisterBoard(this);
         HoldingPosition = transform.Find("Holding Position").position;
+    }
+
+    private void Start()
+    {
+        GetItemManager().RegisterBoard(this);
     }
 
     // Update is called once per frame
