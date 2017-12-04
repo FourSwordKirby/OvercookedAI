@@ -162,26 +162,29 @@ public class Planner {
                         validActions.Add(dropoffAction);
                     }
                 }
-
-                //Moving ingredients to a pot
-                foreach (int potID in state.PotStateIndexList)
+                
+                if((itemState as IngredientState).IsPrepared)
                 {
-                    PotState pot = state.ItemStateList[potID] as PotState;
-                    if (pot.HasCapacity(1))
+                    //Moving ingredients to a pot
+                    foreach (int potID in state.PotStateIndexList)
                     {
-                        dropoffAction = new DropOffAction(pot.ID);
-                        validActions.Add(dropoffAction);
+                        PotState pot = state.ItemStateList[potID] as PotState;
+                        if (pot.HasCapacity(1))
+                        {
+                            dropoffAction = new DropOffAction(pot.ID);
+                            validActions.Add(dropoffAction);
+                        }
                     }
-                }
 
-                //Moving ingredients to a plate
-                foreach (int plateID in state.PlateStateIndexList)
-                {
-                    PlateState plate = state.ItemStateList[plateID] as PlateState;
-                    if (plate.IsEmpty())
+                    //Moving ingredients to a plate
+                    foreach (int plateID in state.PlateStateIndexList)
                     {
-                        dropoffAction = new DropOffAction(plate.ID);
-                        validActions.Add(dropoffAction);
+                        PlateState plate = state.ItemStateList[plateID] as PlateState;
+                        if (plate.IsEmpty())
+                        {
+                            dropoffAction = new DropOffAction(plate.ID);
+                            validActions.Add(dropoffAction);
+                        }
                     }
                 }
             }
@@ -203,7 +206,7 @@ public class Planner {
                         if (pot2.ID == pot.ID)
                             continue;
 
-                        if (pot2.HasCapacity(pot.CurrentMealSize()))
+                        if (pot2.HasCapacity(pot.currentMealSize))
                         {
                             transferAction = new TransferAction(pot.ID);
                             validActions.Add(transferAction);
@@ -235,7 +238,7 @@ public class Planner {
                 //If the plate is non-empty
                 if (!plate.IsEmpty())
                 {
-                    MealState heldMeal = state.ItemStateList[plate.HoldingItemID] as MealState;
+                    MealState heldMeal = state.ItemStateList[plate.MealID] as MealState;
 
                     //Submitting the meal
                     SubmitOrderAction submitAction = new SubmitOrderAction();

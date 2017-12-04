@@ -14,12 +14,15 @@
         HoldingItemID = itemID;
     }
 
-    public void Drop()
+    public int Drop()
     {
         if (!HandsFree())
             throw new System.Exception("Dropped item while there was nothing in hand");
 
+        int droppedItemID = HoldingItemID;
         HoldingItemID = Item.NOTHING_ID;
+
+        return droppedItemID;
     }
 
     public bool HandsFree()

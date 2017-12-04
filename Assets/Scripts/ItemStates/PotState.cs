@@ -5,18 +5,13 @@ using System.Linq;
 public class PotState : ItemState
 {
     public const int MAX_ITEMS_PER_POT = 3;
-    private int currentMealSize;
+    public int currentMealSize;
 
     public int MealID;
 
     private PotState(int id)
         : base (id, ItemType.POT)
     {
-    }
-    
-    public int CurrentMealSize()
-    {
-        return currentMealSize;
     }
 
     public bool IsEmpty()
