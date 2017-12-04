@@ -20,9 +20,9 @@ public class IdleAction : Action
         foreach(int id in cloneState.PotStateIndexList)
         {
             PotState pot = cloneState.ItemStateList[id] as PotState;
-            MealState meal = cloneState.ItemStateList[pot.MealID] as MealState;
-
-            meal.CookIngredients();
+            MealState meal = cloneState.ItemStateList[pot.mealID] as MealState;
+            if(meal.IsSpawned)
+                meal.CookIngredients();
         }
 
         return cloneState;
@@ -147,7 +147,7 @@ public class DropOffAction : Action
         if (cloneState.ItemStateList[id].MyItemType == ItemType.POT)
         {
             PotState pot = cloneState.ItemStateList[id] as PotState;
-            MealState meal = cloneState.ItemStateList[pot.MealID] as MealState;
+            MealState meal = cloneState.ItemStateList[pot.mealID] as MealState;
 
             if (!meal.IsSpawned)
             {
@@ -178,7 +178,7 @@ public class DropOffAction : Action
             return false;
         else
         {
-            int droppedItemID = currentState.CurrentPlayerState.Drop();
+            int droppedItemID = currentState.CurrentPlayerState.HoldingItemID;
 
             if (currentState.ItemStateList[droppedItemID].MyItemType == ItemType.MEAL
                 || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.TABLE
@@ -238,7 +238,47 @@ public class TransferAction : Action
 
     public AIState ApplyAction(AIState currentState)
     {
-        throw new NotImplementedException();
+        AIState cloneState = currentState.Clone() as AIState;
+
+        int heldItemID = cloneState.CurrentPlayerState.HoldingItemID;
+
+        MealState meal1;
+        if (cloneState.ItemStateList[heldItemID].MyItemType == ItemType.POT)
+        {
+            PotState pot = (cloneState.ItemStateList[heldItemID] as PotState);
+            meal1 = (cloneState.ItemStateList[pot.mealID] as MealState);
+
+            //Removing the meal from the pot
+            pot.mealID = cloneState.MealStateIndexList.FindLast(x => cloneState.ItemStateList[x].MyItemType == ItemType.MEAL &&
+                                                                        (cloneState.ItemStateList[x] as MealState).IsSpawned == false);
+        }
+        else
+        {
+            PlateState plate = (cloneState.ItemStateList[heldItemID] as PlateState);
+            meal1 = (cloneState.ItemStateList[plate.MealID] as MealState);
+
+            //Removing the meal from the plate
+            plate.MealID = cloneState.MealStateIndexList.FindLast(x => cloneState.ItemStateList[x].MyItemType == ItemType.MEAL &&
+                                                                    (cloneState.ItemStateList[x] as MealState).IsSpawned == false);
+        }
+
+        //Transferring/combining it with the other meal
+        if (cloneState.ItemStateList[id].MyItemType == ItemType.POT)
+        {
+            PotState pot = cloneState.ItemStateList[id] as PotState;
+            MealState meal2 = cloneState.ItemStateList[pot.mealID] as MealState;
+
+            meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
+        }
+        else
+        {
+            PlateState plate = cloneState.ItemStateList[id] as PlateState;
+            MealState meal2 = cloneState.ItemStateList[plate.MealID] as MealState;
+
+            meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
+        }
+
+        return cloneState;
     }
 
     public bool isValid(AIState currentState)
@@ -247,7 +287,7 @@ public class TransferAction : Action
             return false;
         else
         {
-            int droppedItemID = currentState.CurrentPlayerState.Drop();
+            int droppedItemID = currentState.CurrentPlayerState.HoldingItemID;
 
             if (currentState.ItemStateList[droppedItemID].MyItemType == ItemType.MEAL
                 || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.TABLE
@@ -255,43 +295,36 @@ public class TransferAction : Action
                 || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.INGREDIENT)
                 return false;
 
+            if (currentState.ItemStateList[id].MyItemType == ItemType.MEAL
+                || currentState.ItemStateList[id].MyItemType == ItemType.TABLE
+                || currentState.ItemStateList[id].MyItemType == ItemType.BOARD
+                || currentState.ItemStateList[id].MyItemType == ItemType.INGREDIENT)
+                return false;
 
-            if (currentState.ItemStateList[id].MyItemType == ItemType.TABLE)
+            MealState transferredMeal;
+            if(currentState.ItemStateList[droppedItemID].MyItemType == ItemType.POT)
             {
-                return true;
-            }
-            else if (currentState.ItemStateList[id].MyItemType == ItemType.BOARD)
-            {
-                return (currentState.ItemStateList[droppedItemID].MyItemType != ItemType.INGREDIENT);
-            }
-            else if (currentState.ItemStateList[id].MyItemType == ItemType.POT)
-            {
-                if (currentState.ItemStateList[droppedItemID].MyItemType != ItemType.INGREDIENT)
-                    return false;
-                else
-                {
-                    if (!(currentState.ItemStateList[droppedItemID] as IngredientState).IsPrepared &&
-                        (currentState.ItemStateList[droppedItemID] as IngredientState).IsSpawned)
-                    {
-                        PotState pot = currentState.ItemStateList[id] as PotState;
-                        return pot.currentMealSize < PotState.MAX_ITEMS_PER_POT;
-                    }
-                    else
-                        return false;
-                }
-            }
-            else if (currentState.ItemStateList[id].MyItemType == ItemType.PLATE)
-            {
-                if (currentState.ItemStateList[droppedItemID].MyItemType != ItemType.INGREDIENT)
-                    return false;
-                else
-                {
-                    return ((currentState.ItemStateList[droppedItemID] as IngredientState).IsPrepared &&
-                            (currentState.ItemStateList[droppedItemID] as IngredientState).IsSpawned);
-                }
+                PotState pot = (currentState.ItemStateList[droppedItemID] as PotState);
+                transferredMeal = (currentState.ItemStateList[pot.mealID] as MealState);
             }
             else
+            {
+                PlateState plate = (currentState.ItemStateList[droppedItemID] as PlateState);
+                transferredMeal = (currentState.ItemStateList[plate.MealID] as MealState);
+            }
+
+            if (!transferredMeal.IsSpawned)
                 return false;
+            else
+            {
+                if (currentState.ItemStateList[id].MyItemType == ItemType.POT)
+                {
+                    PotState pot1 = currentState.ItemStateList[id] as PotState;
+                    return pot1.HasCapacity(transferredMeal.MealSize());
+                }
+                else
+                    return true;
+            }
         }
     }
 }
@@ -308,12 +341,35 @@ public class PrepareAction : Action
 
     public AIState ApplyAction(AIState currentState)
     {
-        throw new NotImplementedException();
+        AIState cloneState = currentState.Clone() as AIState;
+
+        BoardState board = cloneState.ItemStateList[id] as BoardState;
+        IngredientState ingredient = cloneState.ItemStateList[board.HoldingItemID] as IngredientState;
+
+        Debug.Log("To get this up and running quickly, preparing an ingredient is a simple boolean flip");
+        ingredient.IsPrepared = true;
+
+        return cloneState;
     }
 
     public bool isValid(AIState currentState)
     {
-        throw new NotImplementedException();
+        if (!currentState.CurrentPlayerState.HandsFree())
+            return false;
+
+        if (currentState.ItemStateList[id].MyItemType != ItemType.BOARD)
+            return false;
+        else
+        {
+            BoardState board = currentState.ItemStateList[id] as BoardState;
+            if (currentState.ItemStateList[board.HoldingItemID].MyItemType != ItemType.INGREDIENT)
+                return false;
+            else
+            {
+                IngredientState ingredient = currentState.ItemStateList[board.HoldingItemID] as IngredientState;
+                return !ingredient.IsPrepared;
+            }
+        }
     }
 }
 
@@ -326,11 +382,37 @@ public class SubmitOrderAction : Action
 
     public AIState ApplyAction(AIState currentState)
     {
-        throw new NotImplementedException();
+        AIState cloneState = currentState.Clone() as AIState;
+
+        int heldItemID = cloneState.CurrentPlayerState.HoldingItemID;
+
+        PlateState plate = (cloneState.ItemStateList[heldItemID] as PlateState);
+
+        //Removing the meal from the plate
+        plate.MealID = cloneState.MealStateIndexList.FindLast(x => cloneState.ItemStateList[x].MyItemType == ItemType.MEAL &&
+                                                                (cloneState.ItemStateList[x] as MealState).IsSpawned == false);
+
+        MealState meal = currentState.ItemStateList[plate.MealID] as MealState;
+        Debug.Log("Potentially score the meal submission here?");
+
+        return cloneState;
     }
 
     public bool isValid(AIState currentState)
     {
-        throw new NotImplementedException();
+        if (currentState.CurrentPlayerState.HandsFree())
+            return false;
+        else
+        {
+            int heldItemID = currentState.CurrentPlayerState.HoldingItemID;
+
+            if (currentState.ItemStateList[heldItemID].MyItemType != ItemType.PLATE)
+                return false;
+            else
+            {
+                PlateState plate = (currentState.ItemStateList[heldItemID] as PlateState);
+                return (currentState.ItemStateList[plate.MealID] as MealState).IsSpawned;
+            }
+        }
     }
 }

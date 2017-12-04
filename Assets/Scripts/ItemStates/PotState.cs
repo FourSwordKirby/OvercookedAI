@@ -7,11 +7,12 @@ public class PotState : ItemState
     public const int MAX_ITEMS_PER_POT = 3;
     public int currentMealSize;
 
-    public int MealID;
+    public int mealID;
 
-    private PotState(int id)
+    public PotState(int id, int MealID)
         : base (id, ItemType.POT)
     {
+        this.mealID = MealID;
     }
 
     public bool IsEmpty()
@@ -26,7 +27,7 @@ public class PotState : ItemState
 
     public override object Clone()
     {
-        return new PotState(ID);
+        return new PotState(ID, mealID);
     }
 
     public override bool Equals(object obj)
@@ -43,7 +44,7 @@ public class PotState : ItemState
         }
 
         return this.ID == otherState.ID
-            && this.MealID == otherState.MealID;
+            && this.mealID == otherState.mealID;
     }
 
     public override int GetHashCode()
