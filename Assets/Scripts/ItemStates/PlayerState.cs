@@ -23,7 +23,7 @@ public class PlayerState {
 
     public int Drop()
     {
-        if (!HandsFree())
+        if (HandsFree())
             throw new System.Exception("Dropped item while there was nothing in hand");
 
         int droppedItemID = HoldingItemID;
