@@ -43,6 +43,7 @@ public class Planner {
                 }
 
                 plan.Reverse();
+                Debug.Log("Plan found");
                 return plan;
             }
 
@@ -79,7 +80,8 @@ public class Planner {
             }
         }
 
-        Debug.Log("implement me");
+
+        Debug.Log("Plan not found");
         return null;
     }
 

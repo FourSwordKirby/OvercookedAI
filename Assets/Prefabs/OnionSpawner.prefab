@@ -66,7 +66,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1088912705724276}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -110,7 +110,6 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -126,7 +125,6 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
-  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -165,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d337d205d064380428b0c4d78d3de944, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MyIngredientType: 1
+  MyIngredientType: 0
   IngredientPrefab: {fileID: 114163881058456052, guid: e49ee6ecbccbd354face2e9bba427a0f,
     type: 2}
   SpawnedIngredients: []
