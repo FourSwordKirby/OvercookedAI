@@ -39,7 +39,7 @@ public class AIState : ICloneable {
             MealStateIndexList = this.MealStateIndexList,
             BoardStateIndexList = this.BoardStateIndexList,
             CurrentTableState = this.CurrentTableState.Clone() as TableState,
-            CurrentPlayerState = this.CurrentPlayerState as PlayerState,
+            CurrentPlayerState = this.CurrentPlayerState.Clone() as PlayerState,
             onionSpawnCount = this.onionSpawnCount,
             mushroomSpawnCount = this.mushroomSpawnCount,
             GValue = int.MaxValue,

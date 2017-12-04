@@ -20,9 +20,9 @@ public class IdleAction : Action
         foreach(int id in cloneState.PotStateIndexList)
         {
             PotState pot = cloneState.ItemStateList[id] as PotState;
-            MealState meal = cloneState.ItemStateList[pot.MealID] as MealState;
-
-            meal.CookIngredients();
+            MealState meal = cloneState.ItemStateList[pot.mealID] as MealState;
+            if(meal.IsSpawned)
+                meal.CookIngredients();
         }
 
         return cloneState;
@@ -147,7 +147,7 @@ public class DropOffAction : Action
         if (cloneState.ItemStateList[id].MyItemType == ItemType.POT)
         {
             PotState pot = cloneState.ItemStateList[id] as PotState;
-            MealState meal = cloneState.ItemStateList[pot.MealID] as MealState;
+            MealState meal = cloneState.ItemStateList[pot.mealID] as MealState;
 
             if (!meal.IsSpawned)
             {
@@ -246,10 +246,10 @@ public class TransferAction : Action
         if (cloneState.ItemStateList[heldItemID].MyItemType == ItemType.POT)
         {
             PotState pot = (cloneState.ItemStateList[heldItemID] as PotState);
-            meal1 = (cloneState.ItemStateList[pot.MealID] as MealState);
+            meal1 = (cloneState.ItemStateList[pot.mealID] as MealState);
 
             //Removing the meal from the pot
-            pot.MealID = cloneState.MealStateIndexList.FindLast(x => cloneState.ItemStateList[x].MyItemType == ItemType.MEAL &&
+            pot.mealID = cloneState.MealStateIndexList.FindLast(x => cloneState.ItemStateList[x].MyItemType == ItemType.MEAL &&
                                                                         (cloneState.ItemStateList[x] as MealState).IsSpawned == false);
         }
         else
@@ -266,7 +266,7 @@ public class TransferAction : Action
         if (cloneState.ItemStateList[id].MyItemType == ItemType.POT)
         {
             PotState pot = cloneState.ItemStateList[id] as PotState;
-            MealState meal2 = cloneState.ItemStateList[pot.MealID] as MealState;
+            MealState meal2 = cloneState.ItemStateList[pot.mealID] as MealState;
 
             meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
         }
@@ -305,7 +305,7 @@ public class TransferAction : Action
             if(currentState.ItemStateList[droppedItemID].MyItemType == ItemType.POT)
             {
                 PotState pot = (currentState.ItemStateList[droppedItemID] as PotState);
-                transferredMeal = (currentState.ItemStateList[pot.MealID] as MealState);
+                transferredMeal = (currentState.ItemStateList[pot.mealID] as MealState);
             }
             else
             {

@@ -17,16 +17,32 @@ public class BoardState : ItemState
 
     public override object Clone()
     {
-        throw new NotImplementedException();
+        return new BoardState(ID);
     }
 
     public override bool Equals(object obj)
     {
-        throw new NotImplementedException();
+        BoardState otherState = obj as BoardState;
+        if (otherState == null)
+        {
+            return false;
+        }
+
+        if (otherState == this)
+        {
+            return true;
+        }
+
+        return this.ID == otherState.ID;
     }
 
     public override int GetHashCode()
     {
-        throw new NotImplementedException();
+        unchecked
+        {
+            int ret = 17;
+            ret = 33 * ret + ID;
+            return ret;
+        }
     }
 }

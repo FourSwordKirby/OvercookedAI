@@ -11,6 +11,17 @@ public interface Goal
 /// <summary>
 /// This defines the conditions for completing a single recipe
 /// </summary>
+public class CookGoal : Goal
+{
+    public bool IsGoal(AIState currentState)
+    {
+        return false;
+    }
+}
+
+/// <summary>
+/// This defines the conditions for completing a single recipe
+/// </summary>
 public class RecipeGoal : Goal
 {
     public bool IsGoal(AIState currentState)

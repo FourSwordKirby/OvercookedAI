@@ -1,9 +1,16 @@
-﻿public class PlayerState {
+﻿using System;
+
+public class PlayerState {
     public int HoldingItemID;
 
     public PlayerState()
     {
         HoldingItemID = Item.NOTHING_ID;
+    }
+
+    private PlayerState(int itemID)
+    {
+        HoldingItemID = itemID;
     }
 
     public void PickUp(int itemID)
@@ -28,6 +35,11 @@
     public bool HandsFree()
     {
         return HoldingItemID == Item.NOTHING_ID;
+    }
+
+    internal PlayerState Clone()
+    {
+        return new PlayerState(this.HoldingItemID);
     }
 
     public override bool Equals(object obj)

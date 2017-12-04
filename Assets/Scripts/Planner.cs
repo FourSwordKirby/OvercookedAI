@@ -12,8 +12,6 @@ public class Planner {
     /// </summary>
     public Goal goal;
 
-    public ItemManager itemManager;
-
     public List<Action> Search(AIState startState)
     {
         int cost = 1;
