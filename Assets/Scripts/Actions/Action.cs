@@ -178,7 +178,7 @@ public class DropOffAction : Action
             return false;
         else
         {
-            int droppedItemID = currentState.CurrentPlayerState.Drop();
+            int droppedItemID = currentState.CurrentPlayerState.HoldingItemID;
 
             if (currentState.ItemStateList[droppedItemID].MyItemType == ItemType.MEAL
                 || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.TABLE
@@ -240,12 +240,12 @@ public class TransferAction : Action
     {
         AIState cloneState = currentState.Clone() as AIState;
 
-        int droppedItemID = cloneState.CurrentPlayerState.Drop();
+        int heldItemID = cloneState.CurrentPlayerState.HoldingItemID;
 
         MealState meal1;
-        if (cloneState.ItemStateList[droppedItemID].MyItemType == ItemType.POT)
+        if (cloneState.ItemStateList[heldItemID].MyItemType == ItemType.POT)
         {
-            PotState pot = (cloneState.ItemStateList[droppedItemID] as PotState);
+            PotState pot = (cloneState.ItemStateList[heldItemID] as PotState);
             meal1 = (cloneState.ItemStateList[pot.MealID] as MealState);
 
             //Removing the meal from the pot
@@ -254,7 +254,7 @@ public class TransferAction : Action
         }
         else
         {
-            PlateState plate = (cloneState.ItemStateList[droppedItemID] as PlateState);
+            PlateState plate = (cloneState.ItemStateList[heldItemID] as PlateState);
             meal1 = (cloneState.ItemStateList[plate.MealID] as MealState);
 
             //Removing the meal from the plate
@@ -287,7 +287,7 @@ public class TransferAction : Action
             return false;
         else
         {
-            int droppedItemID = currentState.CurrentPlayerState.Drop();
+            int droppedItemID = currentState.CurrentPlayerState.HoldingItemID;
 
             if (currentState.ItemStateList[droppedItemID].MyItemType == ItemType.MEAL
                 || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.TABLE
@@ -364,6 +364,16 @@ public class SubmitOrderAction : Action
 
     public bool isValid(AIState currentState)
     {
-        throw new NotImplementedException();
+        return false;
+        /*
+        if (currentState.CurrentPlayerState.HandsFree())
+            return false;
+        else
+        {
+            int droppedItemID = currentState.CurrentPlayerState.HoldingItemID;
+
+            if (currentState.ItemStateList[droppedItemID].MyItemType != ItemType.PLATE)
+                return false;
+        }*/
     }
 }
