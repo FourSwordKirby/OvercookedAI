@@ -3,7 +3,7 @@
 
 public class IngredientState : ItemState {
 
-    public IngredientType Ingredient;
+    public IngredientType ingredientType;
     public bool IsSpawned;
     public bool IsPrepared;
     public bool IsCooking;
@@ -11,7 +11,7 @@ public class IngredientState : ItemState {
     public IngredientState(int id, IngredientType ingredientTypeName, bool isSpawned, bool isPrepared, bool isCooking)
         : base(id, ItemType.INGREDIENT)
     {
-        Ingredient = ingredientTypeName;
+        ingredientType = ingredientTypeName;
         IsSpawned = isSpawned;
         IsPrepared = isPrepared;
         IsCooking = isCooking;
@@ -36,7 +36,7 @@ public class IngredientState : ItemState {
         }
 
         return this.ID == otherState.ID
-            && this.Ingredient == otherState.Ingredient
+            && this.ingredientType == otherState.ingredientType
             && this.IsSpawned == otherState.IsSpawned
             && this.IsPrepared == otherState.IsPrepared
             && this.IsCooking == otherState.IsCooking;
@@ -46,7 +46,7 @@ public class IngredientState : ItemState {
     {
         int ret = 0;
         ret |= (ID << 8);
-        ret |= ((int)Ingredient << 3); // Assumes no more than 32 ingredients
+        ret |= ((int)ingredientType << 3); // Assumes no more than 32 ingredients
         ret |= IsSpawned ? 1 : 0;
         ret |= ((IsPrepared ? 1 : 0) << 1);
         ret |= ((IsCooking ? 1 : 0) << 2);
