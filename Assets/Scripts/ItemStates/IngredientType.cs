@@ -1,4 +1,5 @@
 ﻿public enum IngredientType
 {
-    ONION
+    ONION,
+    MUSHROOM
 }

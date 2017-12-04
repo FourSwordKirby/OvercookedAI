@@ -17,6 +17,13 @@ public class AIState : ICloneable {
     public TableState CurrentTableState;
     public PlayerState CurrentPlayerState;
 
+    public const int MAX_INGREDIENT_TYPE_SPAWN = 5;
+    public const int MAX_MEAL_SPAWN = 5;
+
+    public int onionSpawnCount;
+    public int mushroomSpawnCount;
+
+
     public int GValue;
     public bool IsClosed;
     public AIState Parent;

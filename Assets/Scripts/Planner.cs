@@ -200,7 +200,7 @@ public class Planner {
                     foreach (int potID in state.PotStateIndexList)
                     {
                         PotState pot2 = state.ItemStateList[potID] as PotState;
-                        if (po2t.ID == pot.ID)
+                        if (pot2.ID == pot.ID)
                             continue;
 
                         if (pot2.HasCapacity(pot.CurrentMealSize()))

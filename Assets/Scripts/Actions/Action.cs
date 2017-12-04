@@ -15,7 +15,17 @@ public class IdleAction : Action
 
     public AIState ApplyAction(AIState currentState)
     {
-        throw new NotImplementedException();
+        AIState cloneState = currentState.Clone() as AIState;
+
+        foreach(int id in cloneState.PotStateIndexList)
+        {
+            PotState pot = cloneState.ItemStateList[id] as PotState;
+            MealState meal = cloneState.ItemStateList[pot.MealID] as MealState;
+
+            meal.CookIngredients();
+        }
+
+        return cloneState;
     }
 
     public bool isValid(AIState currentState)
@@ -35,12 +45,39 @@ public class SpawnAction : Action
 
     public AIState ApplyAction(AIState currentState)
     {
-        throw new NotImplementedException();
+        AIState cloneState = currentState.Clone() as AIState;
+
+        foreach (int id in cloneState.IngredientStateIndexList)
+        {
+            IngredientState ingredient = cloneState.ItemStateList[id] as IngredientState;
+
+            if (ingredient.ingredientType == spawnType)
+            {
+                ingredient.IsSpawned = true;
+                if (spawnType == IngredientType.MUSHROOM)
+                    cloneState.mushroomSpawnCount++;
+                if (spawnType == IngredientType.ONION)
+                    cloneState.onionSpawnCount++;
+
+                cloneState.CurrentPlayerState.PickUp(ingredient.ID);
+                break;
+            }
+        }
+
+        return cloneState;
     }
 
     public bool isValid(AIState currentState)
     {
-        throw new NotImplementedException();
+        if (!currentState.CurrentPlayerState.HandsFree())
+            return false;
+
+        if (spawnType == IngredientType.MUSHROOM)
+            return currentState.mushroomSpawnCount < AIState.MAX_INGREDIENT_TYPE_SPAWN;
+        else if (spawnType == IngredientType.ONION)
+            return currentState.onionSpawnCount < AIState.MAX_INGREDIENT_TYPE_SPAWN;
+        else
+            throw new NotImplementedException();
     }
 }
 
@@ -56,12 +93,27 @@ public class PickUpAction : Action
 
     public AIState ApplyAction(AIState currentState)
     {
-        throw new NotImplementedException();
+        AIState cloneState = currentState.Clone() as AIState;
+        cloneState.CurrentPlayerState.PickUp(id);
+
+        return cloneState;
     }
 
     public bool isValid(AIState currentState)
     {
-        throw new NotImplementedException();
+        if (!currentState.CurrentPlayerState.HandsFree())
+            return false;
+        else
+        {
+            if (currentState.ItemStateList[id].MyItemType == ItemType.INGREDIENT)
+                return (currentState.ItemStateList[id] as IngredientState).IsSpawned;
+
+            if (currentState.ItemStateList[id].MyItemType == ItemType.MEAL
+                || currentState.ItemStateList[id].MyItemType == ItemType.TABLE)
+                return false;
+
+            return true;
+        }
     }
 }
 
