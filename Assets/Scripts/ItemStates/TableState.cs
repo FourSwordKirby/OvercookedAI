@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class TableState : ItemState {
+public class TableSpace : ItemState {
     public int ItemIDOnTable;
 
-    public TableState(int id) : base(id, ItemType.TABLE)
+    public TableSpace(int id) : base(id, ItemType.TABLE)
     {
         ItemIDOnTable = Item.NOTHING_ID;
     }
-    public TableState(int id, int itemIDOnTable) : base(id, ItemType.TABLE)
+    public TableSpace(int id, int itemIDOnTable) : base(id, ItemType.TABLE)
     {
         ItemIDOnTable = itemIDOnTable;
     }
@@ -22,7 +22,7 @@ public class TableState : ItemState {
 
     public override bool Equals(object obj)
     {
-        TableState otherState = obj as TableState;
+        TableSpace otherState = obj as TableSpace;
         if (otherState == null)
         {
             return false;

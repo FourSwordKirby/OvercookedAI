@@ -15,7 +15,17 @@ public class CookGoal : Goal
 {
     public bool IsGoal(AIState currentState)
     {
-        return false;
+        foreach(int ingredientID in currentState.IngredientStateIndexList)
+        {
+            IngredientState ingredient = currentState.ItemStateList[ingredientID] as IngredientState;
+
+            if(ingredient.ingredientType == IngredientType.ONION)
+            {
+                if (ingredient.IsPrepared == false)
+                    return false;
+            }
+        }
+        return true;
     }
 }
 

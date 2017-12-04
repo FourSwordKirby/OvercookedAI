@@ -98,7 +98,7 @@ public class PickUpAction : Action
 
         foreach (int tableID in cloneState.TableStateIndexList)
         {
-            TableState tState = cloneState.ItemStateList[tableID] as TableState;
+            TableSpace tState = cloneState.ItemStateList[tableID] as TableSpace;
             if (tState.ItemIDOnTable == id)
             {
                 tState.ItemIDOnTable = Item.NOTHING_ID;
@@ -146,7 +146,7 @@ public class DropOffAction : Action
 
         if(cloneState.ItemStateList[id].MyItemType == ItemType.TABLE)
         {
-            TableState table = cloneState.ItemStateList[id] as TableState;
+            TableSpace table = cloneState.ItemStateList[id] as TableSpace;
             table.ItemIDOnTable = droppedItemID;
         }
         if(cloneState.ItemStateList[id].MyItemType == ItemType.BOARD)
@@ -198,7 +198,7 @@ public class DropOffAction : Action
             
             if (currentState.ItemStateList[id].MyItemType == ItemType.TABLE)
             {
-                TableState table = currentState.ItemStateList[id] as TableState;
+                TableSpace table = currentState.ItemStateList[id] as TableSpace;
                 return table.IsFree();
             }
             else if (currentState.ItemStateList[id].MyItemType == ItemType.BOARD)

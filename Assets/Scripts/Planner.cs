@@ -149,7 +149,7 @@ public class Planner {
                 //Putting things on the table
                 foreach (int tableID in state.TableStateIndexList)
                 {
-                    TableState table = state.ItemStateList[tableID] as TableState;
+                    TableSpace table = state.ItemStateList[tableID] as TableSpace;
                     if (table.IsFree())
                     {
                         dropoffAction = new DropOffAction(table.ID);
@@ -201,7 +201,7 @@ public class Planner {
                 //Putting the pot on the table
                 foreach (int tableID in state.TableStateIndexList)
                 {
-                    TableState table = state.ItemStateList[tableID] as TableState;
+                    TableSpace table = state.ItemStateList[tableID] as TableSpace;
                     if (table.IsFree())
                     {
                         dropoffAction = new DropOffAction(table.ID);
@@ -246,7 +246,7 @@ public class Planner {
                 //Putting things on the table
                 foreach (int tableID in state.TableStateIndexList)
                 {
-                    TableState table = state.ItemStateList[tableID] as TableState;
+                    TableSpace table = state.ItemStateList[tableID] as TableSpace;
                     if (table.IsFree())
                     {
                         dropoffAction = new DropOffAction(table.ID);

@@ -30,11 +30,11 @@ public class Table : Item {
 
     public override ItemState GetState()
     {
-        return new TableState(ID, ItemIDOnTable);
+        return new TableSpace(ID, ItemIDOnTable);
     }
 
     public override void LoadState(ItemState state)
     {
-        ItemIDOnTable = (state as TableState).ItemIDOnTable;
+        ItemIDOnTable = (state as TableSpace).ItemIDOnTable;
     }
 }

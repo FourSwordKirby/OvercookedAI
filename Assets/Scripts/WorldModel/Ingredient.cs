@@ -59,11 +59,6 @@ public class Ingredient : Item {
                 UnknownModel.SetActive(false);
                 MushroomModel.SetActive(true);
                 break;
-            case IngredientType.UNKNOWN:
-                OnionModel.SetActive(false);
-                UnknownModel.SetActive(true);
-                MushroomModel.SetActive(false);
-                break;
         }
     }
 
