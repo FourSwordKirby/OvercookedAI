@@ -354,6 +354,9 @@ public class PrepareAction : Action
 
     public bool isValid(AIState currentState)
     {
+        if (!currentState.CurrentPlayerState.HandsFree())
+            return false;
+
         if (currentState.ItemStateList[id].MyItemType != ItemType.BOARD)
             return false;
         else
