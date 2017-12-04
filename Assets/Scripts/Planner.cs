@@ -20,6 +20,8 @@ public class Planner {
         Dictionary<AIState, AIState> allStates = new Dictionary<AIState, AIState>(new AIStateComparator());
 
         PriorityQueue<AIState> openStates = new PriorityQueue<AIState>();
+        startState.GValue = 0;
+        startState.IsClosed = false;
         openStates.Enqueue(startState, 0);
 
         while(openStates.Count > 0)
@@ -136,6 +138,20 @@ public class Planner {
                 validActions.Add(pickupAction);
             }
 
+            PrepareAction prepAction;
+            foreach(int boardID in state.BoardStateIndexList)
+            {
+                BoardState bState = state.ItemStateList[boardID] as BoardState;
+                if (!bState.IsFree())
+                {
+                    IngredientState iState = state.ItemStateList[bState.HoldingItemID] as IngredientState;
+                    if(iState != null && !iState.IsPrepared)
+                    {
+                        prepAction = new PrepareAction(boardID);
+                        validActions.Add(prepAction);
+                    }
+                }
+            }
         }
 
         //Things you can do when you have something in hand

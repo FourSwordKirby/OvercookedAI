@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour {
     public ItemManager IM;
     private Planner planner = new Planner();
 
-    public List<AIState> observedStates;
+    public List<AIState> observedStates = new List<AIState>();
 
     public List<Action> currentPlan;
     public int currentPlanIndex;
@@ -128,10 +128,10 @@ public class GameManager : MonoBehaviour {
     void Update () {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            AIState currentState = IM.GetWorldState();
+            CurrentState = IM.GetWorldState();
             planner.goal = new CookGoal();
 
-            currentPlan = planner.Search(currentState);
+            currentPlan = planner.Search(CurrentState);
             currentPlanIndex = 0;
 
             Debug.Log(currentPlan.Count);
@@ -144,13 +144,11 @@ public class GameManager : MonoBehaviour {
 
             if(currentPlanIndex < currentPlan.Count)
             {
-                AIState CurrentState = ApplyAction(currentPlan[currentPlanIndex]);
+                ApplyAction(currentPlan[currentPlanIndex]);
                 if (observedStates.Count < currentTime)
                     observedStates.Add(CurrentState);
                 else
                     observedStates[currentTime] = CurrentState;
-                IM.LoadWorldState(CurrentState);
-                Debug.Log("Action applied. History size: " + observedStates.Count);
 
                 currentPlanIndex++;
             }
@@ -185,17 +183,17 @@ public class GameManager : MonoBehaviour {
         }
 	}
 
-    private AIState ApplyAction(Action a)
+    private void ApplyAction(Action a)
     {
-        AIState CurrentState = IM.GetWorldState();
-
+        Debug.Log("Applying action: " + a.ToString(CurrentState));
         if (!a.isValid(CurrentState))
         {
             Debug.Log("Action is not valid. Ignoring.");
-            return null;
+            return;
         }
 
         CurrentState = a.ApplyAction(CurrentState);
-        return CurrentState;
+        IM.LoadWorldState(CurrentState);
+        Debug.Log("Action applied. History size: " + observedStates.Count);
     }
 }
