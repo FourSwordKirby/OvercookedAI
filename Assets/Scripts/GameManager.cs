@@ -25,13 +25,14 @@ public class GameManager : MonoBehaviour {
         IngredientState onion = new IngredientState(1, IngredientType.ONION, false, false, false);
         MealState meal = new MealState(3, false, new List<int>());
         PotState pot = new PotState(2, meal.ID);
+        TableState table = new TableState(4);
 
         currentState.ItemStateList = new List<ItemState>() {board,
                                                             onion,
                                                             pot,
-                                                            meal};
-
-        currentState.CurrentTableState = new TableState(0);
+                                                            meal,
+                                                            table};
+        
         currentState.CurrentPlayerState = new PlayerState();
 
         currentState.BoardStateIndexList = new List<int> { 0 };

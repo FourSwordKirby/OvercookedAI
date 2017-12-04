@@ -3,25 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class TableState : ItemState {
-    /// <summary>
-    /// A list of item IDs which are on the infinite sized table. Use the AddItem and RemoveItem methods
-    /// for adding and subtracting from this list.
-    /// </summary>
-    public List<int> ItemIDsOnTable;
+    public int ItemIDOnTable;
 
     public TableState(int id) : base(id, ItemType.TABLE)
     {
-        ItemIDsOnTable = new List<int>();
+        ItemIDOnTable = Item.NOTHING_ID;
+    }
+    public TableState(int id, int itemIDOnTable) : base(id, ItemType.TABLE)
+    {
+        ItemIDOnTable = itemIDOnTable;
     }
 
-    private TableState(int id, List<int> itemIDsOnTable) : base(id, ItemType.TABLE)
-    {
-        ItemIDsOnTable = itemIDsOnTable;
-    }
 
     public override object Clone()
     {
-        return new TableState(ID, new List<int>(ItemIDsOnTable));
+        return MemberwiseClone();
     }
 
     public override bool Equals(object obj)
@@ -38,59 +34,16 @@ public class TableState : ItemState {
         }
 
         // Items are always assumed to be sorted.
-        return ItemIDsOnTable.SequenceEqual(otherState.ItemIDsOnTable);
-    }
-
-    /// <summary>
-    /// Adds a new item to the Table.
-    /// </summary>
-    /// <param name="id">id of the new item</param>
-    /// <returns>a new TableState with the item added, or the same TableState if the item already exists</returns>
-    public TableState AddItem(int id)
-    {
-        int index = ItemIDsOnTable.BinarySearch(id);
-        if (index >= 0)
-        {
-            return this;
-        }
-        else
-        {
-            TableState newState = (TableState)Clone();
-            newState.ItemIDsOnTable.Insert(~index, id);
-            return newState;
-        }
-    }
-
-    /// <summary>
-    /// Removes an item from the table.
-    /// </summary>
-    /// <param name="id">id of the item to remove</param>
-    /// <returns>a new TableState with the item removed, or the same TableState if the item didn't exist.</returns>
-    public TableState RemoveItem(int id)
-    {
-        int index = ItemIDsOnTable.BinarySearch(id);
-        if (index < 0)
-        {
-            return this;
-        }
-        else
-        {
-            TableState newState = (TableState)Clone();
-            newState.ItemIDsOnTable.RemoveAt(index);
-            return newState;
-        }
+        return ItemIDOnTable == otherState.ItemIDOnTable;
     }
 
     public override int GetHashCode()
     {
-        unchecked
-        {
-            int ret = 17;
-            foreach(int id in ItemIDsOnTable)
-            {
-                ret = 33 * ret + id;
-            }
-            return ret;
-        }
+        return (ID << 16) | ItemIDOnTable;
+    }
+
+    public bool IsFree()
+    {
+        return ItemIDOnTable == Item.NOTHING_ID;
     }
 }

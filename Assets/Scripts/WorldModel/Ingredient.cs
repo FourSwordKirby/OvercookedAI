@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -41,9 +42,11 @@ public class Ingredient : Item {
             OnionModel.SetActive(false);
             UnknownModel.SetActive(false);
             MushroomModel.SetActive(false);
+            transform.position = new Vector3(transform.position.x, -2f, transform.position.z);
             return;
         }
 
+        transform.position = new Vector3(transform.position.x, .8f, transform.position.z);
         switch (MyIngredientType)
         {
             case IngredientType.ONION:
@@ -64,8 +67,18 @@ public class Ingredient : Item {
         }
     }
 
-    public IngredientState GetState()
+    override public ItemState GetState()
     {
         return new IngredientState(ID, MyIngredientType, IsSpawned, IsPrepared, IsCooking);
+    }
+
+    public override void LoadState(ItemState state)
+    {
+        IngredientState iState = state as IngredientState;
+        MyIngredientType = iState.ingredientType;
+        IsSpawned = iState.IsSpawned;
+        IsPrepared = iState.IsPrepared;
+        IsCooking = iState.IsCooking;
+        UpdateVisual();
     }
 }

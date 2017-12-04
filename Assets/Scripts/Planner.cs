@@ -111,7 +111,7 @@ public class Planner {
             foreach (int ingredientID in state.IngredientStateIndexList)
             {
                 IngredientState ingredient = state.ItemStateList[ingredientID] as IngredientState;
-                if(!ingredient.IsCooking)
+                if(ingredient.IsSpawned && !ingredient.IsCooking)
                 {
                     pickupAction = new PickUpAction(ingredient.ID);
                     validActions.Add(pickupAction);
@@ -147,8 +147,15 @@ public class Planner {
             if (type == ItemType.INGREDIENT)
             {
                 //Putting things on the table
-                dropoffAction = new DropOffAction(state.CurrentTableState.ID);
-                validActions.Add(dropoffAction);
+                foreach (int tableID in state.TableStateIndexList)
+                {
+                    TableState table = state.ItemStateList[tableID] as TableState;
+                    if (table.IsFree())
+                    {
+                        dropoffAction = new DropOffAction(table.ID);
+                        validActions.Add(dropoffAction);
+                    }
+                }
 
                 //Moving ingredients to a cutting board
                 foreach (int boardID in state.BoardStateIndexList)
@@ -192,8 +199,15 @@ public class Planner {
                 PotState pot = itemState as PotState;
 
                 //Putting the pot on the table
-                dropoffAction = new DropOffAction(state.CurrentTableState.ID);
-                validActions.Add(dropoffAction);
+                foreach (int tableID in state.TableStateIndexList)
+                {
+                    TableState table = state.ItemStateList[tableID] as TableState;
+                    if (table.IsFree())
+                    {
+                        dropoffAction = new DropOffAction(table.ID);
+                        validActions.Add(dropoffAction);
+                    }
+                }
 
                 if (!pot.IsEmpty())
                 {
@@ -230,8 +244,15 @@ public class Planner {
                 PlateState plate = itemState as PlateState;
 
                 //Putting things on the table
-                dropoffAction = new DropOffAction(state.CurrentTableState.ID);
-                validActions.Add(dropoffAction);
+                foreach (int tableID in state.TableStateIndexList)
+                {
+                    TableState table = state.ItemStateList[tableID] as TableState;
+                    if (table.IsFree())
+                    {
+                        dropoffAction = new DropOffAction(table.ID);
+                        validActions.Add(dropoffAction);
+                    }
+                }
 
                 //If the plate is non-empty
                 if (!plate.IsEmpty())

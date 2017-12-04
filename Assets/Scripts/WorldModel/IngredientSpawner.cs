@@ -6,6 +6,7 @@ using UnityEngine;
 public class IngredientSpawner : MonoBehaviour {
 
     public const int MAX_NUMBER_OF_INGREDIENTS = 5;
+    public IngredientType MyIngredientType;
     public Ingredient IngredientPrefab;
     public List<Item> SpawnedIngredients;
 
@@ -15,6 +16,8 @@ public class IngredientSpawner : MonoBehaviour {
         for (int i = 0; i < MAX_NUMBER_OF_INGREDIENTS; ++i)
         {
             Ingredient ing = Instantiate<Ingredient>(IngredientPrefab, transform);
+            ing.transform.position = transform.position;
+            ing.MyIngredientType = MyIngredientType;
             SpawnedIngredients.Add(ing);
         }
     }

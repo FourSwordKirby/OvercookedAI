@@ -51,7 +51,7 @@ public class SpawnAction : Action
         {
             IngredientState ingredient = cloneState.ItemStateList[id] as IngredientState;
 
-            if (ingredient.ingredientType == spawnType)
+            if (ingredient.ingredientType == spawnType && !ingredient.IsSpawned)
             {
                 ingredient.IsSpawned = true;
                 if (spawnType == IngredientType.MUSHROOM)
@@ -96,6 +96,16 @@ public class PickUpAction : Action
         AIState cloneState = currentState.Clone() as AIState;
         cloneState.CurrentPlayerState.PickUp(id);
 
+        foreach (int tableID in cloneState.TableStateIndexList)
+        {
+            TableState tState = cloneState.ItemStateList[tableID] as TableState;
+            if (tState.ItemIDOnTable == id)
+            {
+                tState.ItemIDOnTable = Item.NOTHING_ID;
+                break;
+            }
+        }
+
         return cloneState;
     }
 
@@ -137,7 +147,7 @@ public class DropOffAction : Action
         if(cloneState.ItemStateList[id].MyItemType == ItemType.TABLE)
         {
             TableState table = cloneState.ItemStateList[id] as TableState;
-            table.ItemIDsOnTable.Add(droppedItemID);
+            table.ItemIDOnTable = droppedItemID;
         }
         if(cloneState.ItemStateList[id].MyItemType == ItemType.BOARD)
         {
@@ -188,7 +198,8 @@ public class DropOffAction : Action
             
             if (currentState.ItemStateList[id].MyItemType == ItemType.TABLE)
             {
-                return true;
+                TableState table = currentState.ItemStateList[id] as TableState;
+                return table.IsFree();
             }
             else if (currentState.ItemStateList[id].MyItemType == ItemType.BOARD)
             {

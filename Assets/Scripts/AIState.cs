@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class AIState : ICloneable {
+public class AIState : ICloneable
+{
     public List<ItemState> ItemStateList;
 
     // TODO: Technically, these lists don't change. We can probably move them to somewhere outside the state.
@@ -13,8 +14,8 @@ public class AIState : ICloneable {
     public List<int> PlateStateIndexList;
     public List<int> MealStateIndexList;
     public List<int> BoardStateIndexList;
+    public List<int> TableStateIndexList;
 
-    public TableState CurrentTableState;
     public PlayerState CurrentPlayerState;
 
     public const int MAX_INGREDIENT_TYPE_SPAWN = 5;
@@ -28,6 +29,14 @@ public class AIState : ICloneable {
     public AIState Parent;
     public Action ParentAction;
 
+    public AIState()
+    {
+        GValue = int.MaxValue;
+        IsClosed = false;
+        Parent = null;
+        ParentAction = null;
+    }
+
     public object Clone()
     {
         return new AIState()
@@ -38,14 +47,10 @@ public class AIState : ICloneable {
             PlateStateIndexList = this.PlateStateIndexList,
             MealStateIndexList = this.MealStateIndexList,
             BoardStateIndexList = this.BoardStateIndexList,
-            CurrentTableState = this.CurrentTableState.Clone() as TableState,
+            TableStateIndexList = this.TableStateIndexList,
             CurrentPlayerState = this.CurrentPlayerState.Clone() as PlayerState,
             onionSpawnCount = this.onionSpawnCount,
-            mushroomSpawnCount = this.mushroomSpawnCount,
-            GValue = int.MaxValue,
-            IsClosed = false,
-            Parent = null,
-            ParentAction = null
+            mushroomSpawnCount = this.mushroomSpawnCount
         };
     }
 }
@@ -55,7 +60,6 @@ public class AIStateComparator : IEqualityComparer<AIState>
     public bool Equals(AIState x, AIState y)
     {
         return x.ItemStateList.SequenceEqual(y.ItemStateList)
-            && x.CurrentTableState.Equals(y.CurrentTableState)
             && x.CurrentPlayerState.Equals(y.CurrentPlayerState);
     }
 
@@ -67,7 +71,6 @@ public class AIStateComparator : IEqualityComparer<AIState>
         unchecked
         {
             int hash = obj.ItemStateList.Aggregate(seed, (current, item) => (current * modifier) + item.GetHashCode());
-            hash = (hash * modifier) + obj.CurrentTableState.GetHashCode();
             hash = (hash * modifier) + obj.CurrentPlayerState.GetHashCode();
             hash = (hash * modifier) + obj.onionSpawnCount;
             hash = (hash * modifier) + obj.mushroomSpawnCount;

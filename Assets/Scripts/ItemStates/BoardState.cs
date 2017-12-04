@@ -17,7 +17,7 @@ public class BoardState : ItemState
 
     public override object Clone()
     {
-        return new BoardState(ID);
+        return MemberwiseClone();
     }
 
     public override bool Equals(object obj)

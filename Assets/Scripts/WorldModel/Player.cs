@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,5 +29,10 @@ public class Player : MonoBehaviour {
     public void LoadState(PlayerState s)
     {
         IsHolding = !s.HandsFree();
+    }
+
+    public PlayerState GetPlayerState()
+    {
+        return new PlayerState();
     }
 }
