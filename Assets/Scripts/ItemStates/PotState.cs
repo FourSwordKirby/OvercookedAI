@@ -5,38 +5,33 @@ using System.Linq;
 public class PotState : ItemState
 {
     public const int MAX_ITEMS_PER_POT = 3;
+    private int currentMealSize;
 
-    public List<int> ItemIDsInPot;
+    public int MealID;
 
-    private PotState(int id, List<int> containingItemIDs)
+    private PotState(int id)
         : base (id, ItemType.POT)
     {
-        ItemIDsInPot = containingItemIDs;
-    }
-
-    public PotState(int id) : base(id, ItemType.POT)
-    {
-        ItemIDsInPot = new List<int>(MAX_ITEMS_PER_POT);
     }
     
     public int CurrentMealSize()
     {
-        return ItemIDsInPot.Count;
+        return currentMealSize;
     }
 
     public bool IsEmpty()
     {
-        return ItemIDsInPot.Count == 0;
+        return currentMealSize == 0;
     }
 
     public bool HasCapacity(int AddedItemCount)
     {
-        throw new NotImplementedException();
+        return MAX_ITEMS_PER_POT > currentMealSize;
     }
 
     public override object Clone()
     {
-        return new PotState(ID, new List<int>(ItemIDsInPot));
+        return new PotState(ID);
     }
 
     public override bool Equals(object obj)
@@ -53,7 +48,7 @@ public class PotState : ItemState
         }
 
         return this.ID == otherState.ID
-            && this.ItemIDsInPot.All(id => otherState.ItemIDsInPot.Contains(id));
+            && this.MealID == otherState.MealID;
     }
 
     public override int GetHashCode()
@@ -62,10 +57,6 @@ public class PotState : ItemState
         {
             int ret = 17;
             ret = 33 * ret + ID;
-            foreach (int id in ItemIDsInPot)
-            {
-                ret = 33 * ret + id;
-            }
             return ret;
         }
     }

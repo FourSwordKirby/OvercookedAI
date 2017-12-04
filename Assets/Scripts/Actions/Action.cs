@@ -15,7 +15,17 @@ public class IdleAction : Action
 
     public AIState ApplyAction(AIState currentState)
     {
-        throw new NotImplementedException();
+        AIState cloneState = currentState.Clone() as AIState;
+
+        foreach(int id in cloneState.PotStateIndexList)
+        {
+            PotState pot = cloneState.ItemStateList[id] as PotState;
+            MealState meal = cloneState.ItemStateList[pot.MealID] as MealState;
+
+            meal.CookIngredients();
+        }
+
+        return cloneState;
     }
 
     public bool isValid(AIState currentState)
