@@ -200,12 +200,14 @@ public class DropOffAction : Action
                     return false;
                 else
                 {
-                    if((currentState.ItemStateList[droppedItemID] as IngredientState).IsPrepared && 
+                    if (!(currentState.ItemStateList[droppedItemID] as IngredientState).IsPrepared &&
                         (currentState.ItemStateList[droppedItemID] as IngredientState).IsSpawned)
                     {
                         PotState pot = currentState.ItemStateList[id] as PotState;
                         return pot.currentMealSize < PotState.MAX_ITEMS_PER_POT;
                     }
+                    else
+                        return false;
                 }
             }
             else if (currentState.ItemStateList[id].MyItemType == ItemType.PLATE)
@@ -241,7 +243,56 @@ public class TransferAction : Action
 
     public bool isValid(AIState currentState)
     {
-        throw new NotImplementedException();
+        if (currentState.CurrentPlayerState.HandsFree())
+            return false;
+        else
+        {
+            int droppedItemID = currentState.CurrentPlayerState.Drop();
+
+            if (currentState.ItemStateList[droppedItemID].MyItemType == ItemType.MEAL
+                || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.TABLE
+                || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.BOARD
+                || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.INGREDIENT)
+                return false;
+
+
+            if (currentState.ItemStateList[id].MyItemType == ItemType.TABLE)
+            {
+                return true;
+            }
+            else if (currentState.ItemStateList[id].MyItemType == ItemType.BOARD)
+            {
+                return (currentState.ItemStateList[droppedItemID].MyItemType != ItemType.INGREDIENT);
+            }
+            else if (currentState.ItemStateList[id].MyItemType == ItemType.POT)
+            {
+                if (currentState.ItemStateList[droppedItemID].MyItemType != ItemType.INGREDIENT)
+                    return false;
+                else
+                {
+                    if (!(currentState.ItemStateList[droppedItemID] as IngredientState).IsPrepared &&
+                        (currentState.ItemStateList[droppedItemID] as IngredientState).IsSpawned)
+                    {
+                        PotState pot = currentState.ItemStateList[id] as PotState;
+                        return pot.currentMealSize < PotState.MAX_ITEMS_PER_POT;
+                    }
+                    else
+                        return false;
+                }
+            }
+            else if (currentState.ItemStateList[id].MyItemType == ItemType.PLATE)
+            {
+                if (currentState.ItemStateList[droppedItemID].MyItemType != ItemType.INGREDIENT)
+                    return false;
+                else
+                {
+                    return ((currentState.ItemStateList[droppedItemID] as IngredientState).IsPrepared &&
+                            (currentState.ItemStateList[droppedItemID] as IngredientState).IsSpawned);
+                }
+            }
+            else
+                return false;
+        }
     }
 }
 
