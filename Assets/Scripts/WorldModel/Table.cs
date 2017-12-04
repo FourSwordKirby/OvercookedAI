@@ -35,6 +35,8 @@ public class Table : Item {
 
     public override void LoadState(ItemState state)
     {
-        ItemIDOnTable = (state as TableSpace).ItemIDOnTable;
+        TableSpace tState = state as TableSpace;
+        ItemIDOnTable = tState.ItemIDOnTable;
+        GetItemManager().ItemList[tState.ItemIDOnTable].transform.position = HoldingPosition;
     }
 }

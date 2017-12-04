@@ -96,15 +96,32 @@ public class PickUpAction : Action
         AIState cloneState = currentState.Clone() as AIState;
         cloneState.CurrentPlayerState.PickUp(id);
 
+        bool hasCleared = false;
         foreach (int tableID in cloneState.TableStateIndexList)
         {
             TableSpace tState = cloneState.ItemStateList[tableID] as TableSpace;
             if (tState.ItemIDOnTable == id)
             {
                 tState.ItemIDOnTable = Item.NOTHING_ID;
+                hasCleared = true;
                 break;
             }
         }
+
+        if(!hasCleared)
+        {
+            foreach (int boardID in cloneState.TableStateIndexList)
+            {
+                BoardState bState = cloneState.ItemStateList[boardID] as BoardState;
+                if (bState.HoldingItemID == id)
+                {
+                    bState.HoldingItemID = Item.NOTHING_ID;
+                    break;
+                }
+            }
+
+        }
+
 
         return cloneState;
     }
@@ -115,6 +132,11 @@ public class PickUpAction : Action
             return false;
         else
         {
+            if (id == Item.NOTHING_ID)
+            {
+                return false;
+            }
+
             if (currentState.ItemStateList[id].MyItemType == ItemType.INGREDIENT)
                 return (currentState.ItemStateList[id] as IngredientState).IsSpawned;
 

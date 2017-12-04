@@ -4,10 +4,10 @@ public class BoardState : ItemState
 {
     public int HoldingItemID;
 
-    public BoardState(int id)
+    public BoardState(int id, int holdingItemID = Item.NOTHING_ID)
         : base(id, ItemType.BOARD)
     {
-        HoldingItemID = Item.NOTHING_ID;
+        HoldingItemID = holdingItemID;
     }
 
     public bool IsFree()

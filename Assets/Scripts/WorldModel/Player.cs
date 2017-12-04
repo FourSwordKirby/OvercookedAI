@@ -6,9 +6,31 @@ using UnityEngine;
 public class Player : MonoBehaviour {
 
     public Vector3 HoldPosition;
-    public bool IsHolding;
+    public Item HoldingItem;
 
     private Animator anim;
+
+    public ItemManager ItemManagerRef;
+
+    public ItemManager GetItemManager()
+    {
+        if (ItemManagerRef != null)
+        {
+            return ItemManagerRef;
+        }
+
+        ItemManagerRef = FindObjectOfType<ItemManager>();
+        if (ItemManagerRef == null)
+        {
+            Debug.LogError("Missing ItemManager!");
+            return null;
+        }
+        else
+        {
+            return ItemManagerRef;
+        }
+    }
+
 
     private void Awake()
     {
@@ -23,12 +45,20 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        anim.SetBool("IsHolding", IsHolding);
+        anim.SetBool("IsHolding", HoldingItem != null);
 	}
 
     public void LoadState(PlayerState s)
     {
-        IsHolding = !s.HandsFree();
+        if (s.HandsFree())
+        {
+            HoldingItem = null;
+        }
+        else
+        {
+            HoldingItem = GetItemManager().ItemList[s.HoldingItemID];
+            HoldingItem.transform.position = HoldPosition;
+        }
     }
 
     public PlayerState GetPlayerState()

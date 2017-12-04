@@ -8,6 +8,7 @@ public class ItemManager : MonoBehaviour {
     public List<Item> ItemList = new List<Item>();
     public List<int> IngredientIndexList = new List<int>();
     public List<int> TableIndexList = new List<int>();
+    public List<int> BoardIndexList = new List<int>();
     public Table TableItem;
     public Player PlayerObject;
 
@@ -36,6 +37,13 @@ public class ItemManager : MonoBehaviour {
         TableIndexList.Add(index);
         table.ID = index;
     }
+    public void RegisterBoard(Board board)
+    {
+        int index = ItemList.Count;
+        ItemList.Add(board);
+        BoardIndexList.Add(index);
+        board.ID = index;
+    }
 
     // Use this for initialization
     private void Start ()
@@ -58,7 +66,7 @@ public class ItemManager : MonoBehaviour {
             PotStateIndexList = new List<int>(),
             PlateStateIndexList = new List<int>(),
             MealStateIndexList = new List<int>(),
-            BoardStateIndexList = new List<int>(),
+            BoardStateIndexList = BoardIndexList,
             TableStateIndexList = TableIndexList,
             CurrentPlayerState = PlayerObject.GetPlayerState(),
             onionSpawnCount = 0,
@@ -72,20 +80,8 @@ public class ItemManager : MonoBehaviour {
         {
             ItemList[i].LoadState(state.ItemStateList[i]);
         }
-
-        foreach (int tableId in TableIndexList)
-        {
-            Table table = ItemList[tableId] as Table;
-            if (table.ItemIDOnTable != Item.NOTHING_ID)
-            {
-                ItemList[table.ItemIDOnTable].transform.position = table.HoldingPosition;
-            }
-        }
+        
 
         PlayerObject.LoadState(state.CurrentPlayerState);
-        if (state.CurrentPlayerState.HoldingItemID != Item.NOTHING_ID)
-        {
-            ItemList[state.CurrentPlayerState.HoldingItemID].transform.position = PlayerObject.HoldPosition;
-        }
     }
 }
