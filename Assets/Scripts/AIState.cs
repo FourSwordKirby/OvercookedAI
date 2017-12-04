@@ -18,6 +18,7 @@ public class AIState : ICloneable {
     public PlayerState CurrentPlayerState;
 
     public int GValue;
+    public bool IsClosed;
     public AIState Parent;
     public Action ParentAction;
 
@@ -34,6 +35,7 @@ public class AIState : ICloneable {
             CurrentTableState = this.CurrentTableState.Clone() as TableState,
             CurrentPlayerState = this.CurrentPlayerState as PlayerState,
             GValue = int.MaxValue,
+            IsClosed = false,
             Parent = null,
             ParentAction = null
         };

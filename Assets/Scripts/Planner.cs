@@ -16,36 +16,68 @@ public class Planner {
 
     public List<Action> Search(AIState startState)
     {
-        Dictionary<AIState, List<Action>> closedStates = new Dictionary<AIState, List<Action>>(new AIStateComparator());
+        int cost = 1;
+        float epsilon = 1.0f;
 
-        PriorityQueue<KeyValuePair<AIState, List<Action>>> openStates = new PriorityQueue<KeyValuePair<AIState, List<Action>>>();
-        openStates.Enqueue(new KeyValuePair<AIState, List<Action>>(startState, new List<Action>()), 0);
+        Dictionary<AIState, AIState> allStates = new Dictionary<AIState, AIState>(new AIStateComparator());
+
+        PriorityQueue<AIState> openStates = new PriorityQueue<AIState>();
+        openStates.Enqueue(startState, 0);
 
         while(openStates.Count > 0)
         {
-            KeyValuePair<AIState, List<Action>> pair = openStates.Dequeue().Value;
-            AIState currentState = pair.Key;
-            List<Action> currentActions = pair.Value;
+            AIState currentState = openStates.Dequeue().Value;
+            if(currentState.IsClosed)
+            {
+                continue;
+            }
 
-            closedStates.Add(currentState, currentActions);
+            currentState.IsClosed = true;
 
             if (goal.IsGoal(currentState))
-                return currentActions;
+            {
+                // Backtrack
+                List<Action> plan = new List<Action>();
+                while(currentState != startState)
+                {
+                    plan.Add(currentState.ParentAction);
+                    currentState = currentState.Parent;
+                }
+
+                plan.Reverse();
+                return plan;
+            }
 
             List<Action> validActions = GetValidActions(currentState);
-
             foreach(Action action in validActions)
             {
                 AIState newState = action.ApplyAction(currentState);
 
-                if (closedStates.ContainsKey(newState))
-                    continue;
+                // If we have already seen this state, then pull out the existing reference to it.
+                if (allStates.ContainsKey(newState))
+                {
+                    newState = allStates[newState];
+                    if (newState.IsClosed)
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    allStates[newState] = newState;
+                }
 
-                List<Action> latestActions = new List<Action>();
-                latestActions.AddRange(currentActions);
-                latestActions.Add(action);
+                // Only insert into open list if the g-value is smaller
+                int tentativeGValue = currentState.GValue + cost;
+                if (tentativeGValue < newState.GValue)
+                {
+                    newState.GValue = tentativeGValue;
+                    newState.Parent = currentState;
+                    newState.ParentAction = action;
 
-                openStates.Enqueue(new KeyValuePair<AIState, List<Action>>(newState, latestActions), latestActions.Count + Heuristic(newState));
+                    float fValue = tentativeGValue + epsilon * Heuristic(newState);
+                    openStates.Enqueue(newState,  fValue);
+                }
             }
         }
 
