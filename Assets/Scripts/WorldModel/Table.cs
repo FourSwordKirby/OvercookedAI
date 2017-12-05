@@ -6,11 +6,11 @@ using UnityEngine;
 public class Table : Item {
 
     public Item HeldItem;
-    public Vector3 HoldingPosition;
+    public Transform HoldingPosition;
 
     private void Awake()
     {
-        HoldingPosition = transform.Find("Holding Position").position;
+        HoldingPosition = transform.Find("Holding Position");
     }
 
     public void Start()
@@ -19,7 +19,7 @@ public class Table : Item {
         if (HeldItem != null)
         {
             Debug.Log("Moved item " + HeldItem.name + " to table holding position.");
-            HeldItem.transform.position = HoldingPosition;
+            HeldItem.transform.position = HoldingPosition.position;
         }
     }
     
@@ -38,7 +38,7 @@ public class Table : Item {
             HeldItem = GetItemManager().ItemList[tState.ItemIDOnTable];
             if (HeldItem != null)
             {
-                HeldItem.transform.position = HoldingPosition;
+                HeldItem.transform.position = HoldingPosition.position;
             }
         }
     }

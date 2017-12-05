@@ -33,6 +33,10 @@ public class Meal : Item
 
     private void Update()
     {
+        foreach (Ingredient ing in HeldIngredients)
+        {
+            ing.transform.position = transform.position + 5 * Vector3.down;
+        }
     }
 
     public override ItemState GetState()

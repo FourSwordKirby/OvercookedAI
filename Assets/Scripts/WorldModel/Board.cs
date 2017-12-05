@@ -6,7 +6,7 @@ using UnityEngine;
 public class Board : Item {
 
     public Item HoldingItem;
-    public Vector3 HoldingPosition;
+    public Transform HoldingPosition;
 
     public override ItemState GetState()
     {
@@ -27,13 +27,13 @@ public class Board : Item {
 
         if (HoldingItem != null)
         {
-            HoldingItem.transform.position = HoldingPosition;
+            HoldingItem.transform.position = HoldingPosition.position;
         }
     }
 
     private void Awake()
     {
-        HoldingPosition = transform.Find("Holding Position").position;
+        HoldingPosition = transform.Find("Holding Position");
     }
 
     private void Start()

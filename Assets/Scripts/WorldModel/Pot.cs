@@ -6,17 +6,22 @@ using UnityEngine;
 public class Pot : Item
 {
     public Meal HeldMeal;
-    public Vector3 HoldingPosition;
+    public Transform HoldingPosition;
 
     private void Awake()
     {
-        HoldingPosition = transform.Find("Holding Position").position;
+        HoldingPosition = transform.Find("Holding Position");
     }
 
     private void Start()
     {
         GetItemManager().RegisterPot(this);
-        HeldMeal.transform.position = HoldingPosition;
+        HeldMeal.transform.position = HoldingPosition.position;
+    }
+
+    private void Update()
+    {
+        HeldMeal.transform.position = HoldingPosition.position;
     }
 
     public override ItemState GetState()
@@ -28,6 +33,5 @@ public class Pot : Item
     {
         PotState pState = state as PotState;
         HeldMeal = GetItemManager().ItemList[pState.mealID] as Meal;
-        HeldMeal.transform.position = HoldingPosition;
     }
 }
