@@ -2,16 +2,16 @@
 
 public class PlateState : ItemState
 {
-    public int MealID;
+    public int mealID;
 
     public PlateState(int id) : base(id, ItemType.PLATE)
     {
-        MealID = Item.NOTHING_ID;
+        mealID = Item.NOTHING_ID;
     }
 
     public bool IsEmpty()
     {
-        return MealID == Item.NOTHING_ID;
+        return mealID == Item.NOTHING_ID;
     }
 
     public override object Clone()
@@ -38,11 +38,11 @@ public class PlateState : ItemState
         }
 
         return this.ID == otherState.ID
-            && this.MealID == otherState.MealID;
+            && this.mealID == otherState.mealID;
     }
 
     public override int GetHashCode()
     {
-        return (ID << 16) | MealID;
+        return (ID << 16) | mealID;
     }
 }
