@@ -41,7 +41,7 @@ public class Meal : Item
     public override ItemState GetState()
     {
         List<int> ingIDs = HeldIngredients.Select(ing => ing.ID).ToList();
-        return new MealState(ID, IsSpawned, CookDuration, ingIDs);
+        return new MealState(ID, CookDuration, ingIDs);
     }
 
     public override void LoadState(ItemState state)
@@ -49,7 +49,7 @@ public class Meal : Item
         MealState mState = state as MealState;
         HeldIngredients.Clear();
         HeldIngredients.AddRange(mState.ContainedIngredientIDs.Select(id => GetItemManager().ItemList[id] as Ingredient));
-        IsSpawned = mState.IsSpawned;
+        IsSpawned = mState.IsSpawned();
         CookDuration = mState.cookDuration;
         IsBurnt = mState.IsBurnt();
         IsCooked = mState.IsCooked();
@@ -61,6 +61,8 @@ public class Meal : Item
     {
         MyText.text = "Time: " + CookDuration + "\n";
         MyText.text += "IDs: " + string.Join(", ", HeldIngredients.Select(ing => ing.ID.ToString()).ToArray());
+        MyText.text += IsCooked ? "COOKED!\n" : "";
+        MyText.text += IsBurnt ? "BURNT!\n" : "";
         Model.SetActive(IsSpawned);
         Canvas.gameObject.SetActive(IsSpawned);
     }

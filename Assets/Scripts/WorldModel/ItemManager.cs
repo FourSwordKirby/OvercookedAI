@@ -82,6 +82,7 @@ public class ItemManager : MonoBehaviour {
     private void Start ()
     {
         PlayerObject = FindObjectOfType<Player>();
+        SubmittedTableRef = FindObjectOfType<SubmittedTable>();
 	}
 
     public Table GetTable(int index)

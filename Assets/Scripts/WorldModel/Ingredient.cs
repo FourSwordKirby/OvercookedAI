@@ -7,7 +7,7 @@ public class Ingredient : Item {
     public IngredientType MyIngredientType;
     public bool IsSpawned;
     public bool IsPrepared;
-    public bool IsCooking;
+    public bool IsInMeal;
 
     private GameObject OnionModel;
     private GameObject MushroomModel;
@@ -77,7 +77,7 @@ public class Ingredient : Item {
 
     override public ItemState GetState()
     {
-        return new IngredientState(ID, MyIngredientType, IsSpawned, IsPrepared, IsCooking);
+        return new IngredientState(ID, MyIngredientType, IsSpawned, IsPrepared, IsInMeal);
     }
 
     public override void LoadState(ItemState state)
@@ -86,7 +86,7 @@ public class Ingredient : Item {
         MyIngredientType = iState.ingredientType;
         IsSpawned = iState.IsSpawned;
         IsPrepared = iState.IsPrepared;
-        IsCooking = iState.IsCooking;
+        IsInMeal = iState.IsInMeal;
         UpdateVisual();
     }
 }

@@ -115,7 +115,7 @@ public class Planner {
             foreach (int ingredientID in state.IngredientStateIndexList)
             {
                 IngredientState ingredient = state.ItemStateList[ingredientID] as IngredientState;
-                if(ingredient.IsSpawned && !ingredient.IsCooking)
+                if(ingredient.IsSpawned && !ingredient.IsInMeal)
                 {
                     pickupAction = new PickUpAction(ingredient.ID);
                     validActions.Add(pickupAction);
@@ -333,7 +333,7 @@ public class Planner {
                     h += 1;
                 if (!ingredient.IsPrepared)
                     h += 1;
-                if (!ingredient.IsCooking)
+                if (!ingredient.IsInMeal)
                     h += 1;
             }
         }

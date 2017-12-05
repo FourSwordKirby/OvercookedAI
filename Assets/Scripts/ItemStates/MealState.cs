@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System;
 
 public class MealState : ItemState {
-
-    public bool IsSpawned;
+    
     public List<int> ContainedIngredientIDs;
     public int cookDuration = 0;
 
     public const int COOK_TIME_PER_INGREDIENT = 3;
 
-    public MealState(int id, bool isSpawned, int time, List<int> containingItemIDs)
+    public MealState(int id, int time, List<int> containingItemIDs)
         : base(id, ItemType.MEAL)
     {
-        IsSpawned = isSpawned;
         cookDuration = time;
         ContainedIngredientIDs = containingItemIDs;
+    }
+
+    public bool IsSpawned()
+    {
+        return ContainedIngredientIDs.Count > 0;
     }
 
     public int MealSize()
