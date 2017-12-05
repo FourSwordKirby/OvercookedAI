@@ -10,14 +10,21 @@ public class Ingredient : Item {
     public bool IsCooking;
 
     private GameObject OnionModel;
-    private GameObject UnknownModel;
     private GameObject MushroomModel;
+    private GameObject PrepOnionModel;
+    private GameObject PrepMushroomModel;
+
+    private GameObject UnknownModel;
+
 
     private void Awake()
     {
         OnionModel = transform.Find("Onion Model").gameObject;
-        UnknownModel = transform.Find("Unknown Model").gameObject;
         MushroomModel = transform.Find("Mushroom Model").gameObject;
+        PrepOnionModel = transform.Find("Prep Onion Model").gameObject;
+        PrepMushroomModel = transform.Find("Prep Mushroom Model").gameObject;
+        UnknownModel = transform.Find("Unknown Model").gameObject;
+
     }
 
     private void Start()
@@ -40,8 +47,10 @@ public class Ingredient : Item {
         if (!IsSpawned)
         {
             OnionModel.SetActive(false);
-            UnknownModel.SetActive(false);
             MushroomModel.SetActive(false);
+            PrepOnionModel.SetActive(false);
+            PrepMushroomModel.SetActive(false);
+            UnknownModel.SetActive(false);
             transform.position = new Vector3(transform.position.x, -2f, transform.position.z);
             return;
         }
@@ -50,14 +59,18 @@ public class Ingredient : Item {
         switch (MyIngredientType)
         {
             case IngredientType.ONION:
-                OnionModel.SetActive(true);
-                UnknownModel.SetActive(false);
+                OnionModel.SetActive(!IsPrepared);
                 MushroomModel.SetActive(false);
+                PrepOnionModel.SetActive(IsPrepared);
+                PrepMushroomModel.SetActive(false);
+                UnknownModel.SetActive(false);
                 break;
             case IngredientType.MUSHROOM:
                 OnionModel.SetActive(false);
+                MushroomModel.SetActive(!IsPrepared);
+                PrepOnionModel.SetActive(false);
+                PrepMushroomModel.SetActive(IsPrepared);
                 UnknownModel.SetActive(false);
-                MushroomModel.SetActive(true);
                 break;
         }
     }
