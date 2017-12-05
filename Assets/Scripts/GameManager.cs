@@ -123,16 +123,27 @@ public class GameManager : MonoBehaviour {
             }
             else
             {
+                SubmitOrderAction soAction = new SubmitOrderAction();
+                if (soAction.isValid(CurrentState))
+                {
+                    XAction = soAction;
+                }
+
                 DropOffAction doAction = new DropOffAction(HighlightedIndex);
                 if (doAction.isValid(CurrentState))
                 {
                     ZAction = doAction;
                     return IM.ItemList[HighlightedIndex].gameObject;
                 }
-                else
+
+                TransferAction transAction = new TransferAction(HighlightedIndex);
+                if (transAction.isValid(CurrentState))
                 {
-                    return GetHighlight(step);
+                    ZAction = transAction;
+                    return IM.ItemList[HighlightedIndex].gameObject;
                 }
+                
+                return GetHighlight(step);
             }
         }
         else

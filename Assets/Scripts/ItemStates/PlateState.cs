@@ -3,10 +3,12 @@
 public class PlateState : ItemState
 {
     public int mealID;
+    public bool IsSubmitted;
 
-    public PlateState(int id) : base(id, ItemType.PLATE)
+    public PlateState(int id, int mealID, bool isSubmitted) : base(id, ItemType.PLATE)
     {
-        mealID = Item.NOTHING_ID;
+        this.mealID = mealID;
+        IsSubmitted = isSubmitted;
     }
 
     public bool IsEmpty()
@@ -38,11 +40,12 @@ public class PlateState : ItemState
         }
 
         return this.ID == otherState.ID
-            && this.mealID == otherState.mealID;
+            && this.mealID == otherState.mealID
+            && this.IsSubmitted == otherState.IsSubmitted;
     }
 
     public override int GetHashCode()
     {
-        return (ID << 16) | mealID;
+        return (ID << 16) | (mealID << 1) | (IsSubmitted ? 1 : 0);
     }
 }
