@@ -193,7 +193,7 @@ public class Planner {
                     {
                         PotState pot = state.ItemStateList[potID] as PotState;
                         MealState meal = state.ItemStateList[pot.mealID] as MealState;
-                        if (meal.MealSize() + 1 <= PotState.MAX_ITEMS_PER_POT)
+                        if (meal.MealSize() + 1 <= PotState.MAX_ITEMS_PER_POT && !meal.IsBurnt())
                         {
                             dropoffAction = new DropOffAction(pot.ID);
                             validActions.Add(dropoffAction);
@@ -204,11 +204,8 @@ public class Planner {
                     foreach (int plateID in state.PlateStateIndexList)
                     {
                         PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        if (plate.IsEmpty())
-                        {
-                            dropoffAction = new DropOffAction(plate.ID);
-                            validActions.Add(dropoffAction);
-                        }
+                        dropoffAction = new DropOffAction(plate.ID);
+                        validActions.Add(dropoffAction);
                     }
                 }
             }
@@ -241,7 +238,8 @@ public class Planner {
                         MealState meal2 = state.ItemStateList[pot2.mealID] as MealState;
 
 
-                        if (meal.MealSize() + meal2.MealSize() <= PotState.MAX_ITEMS_PER_POT)
+                        if (meal.MealSize() + meal2.MealSize() <= PotState.MAX_ITEMS_PER_POT &&
+                            !meal.IsBurnt() && !meal2.IsBurnt())
                         {
                             transferAction = new TransferAction(pot.ID);
                             validActions.Add(transferAction);
@@ -253,11 +251,8 @@ public class Planner {
                     foreach (int plateID in state.PlateStateIndexList)
                     {
                         PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        if (plate.IsEmpty())
-                        {
-                            transferAction = new TransferAction(plate.ID);
-                            validActions.Add(transferAction);
-                        }
+                        transferAction = new TransferAction(plate.ID);
+                        validActions.Add(transferAction);
                     }
                 }
             }
@@ -325,7 +320,25 @@ public class Planner {
     /// <returns></returns>
     public float Heuristic(AIState state)
     {
-        Debug.Log("Implement a heuristic here");
-        return 0;
+        int h = 0;
+        float epsilon = 10.0f;
+
+
+        foreach (int ingredientID in state.IngredientStateIndexList)
+        {
+            IngredientState ingredient = (state.ItemStateList[ingredientID] as IngredientState);
+            if (ingredient.ingredientType == IngredientType.ONION)
+            {
+                if (!ingredient.IsSpawned)
+                    h += 1;
+                if (!ingredient.IsPrepared)
+                    h += 1;
+                if (!ingredient.IsCooking)
+                    h += 1;
+            }
+        }
+
+        //Debug.Log("Implement a heuristic here");
+        return h * epsilon;
     }
 }

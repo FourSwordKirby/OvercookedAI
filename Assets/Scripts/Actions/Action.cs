@@ -166,7 +166,7 @@ public class PickUpAction : AdvanceTimeAction
             }
 
             if (currentState.ItemStateList[id].MyItemType == ItemType.INGREDIENT)
-                return (currentState.ItemStateList[id] as IngredientState).IsSpawned;
+                return (currentState.ItemStateList[id] as IngredientState).IsSpawned && !(currentState.ItemStateList[id] as IngredientState).IsCooking;
 
             if (currentState.ItemStateList[id].MyItemType == ItemType.MEAL
                 || currentState.ItemStateList[id].MyItemType == ItemType.TABLE
@@ -218,6 +218,8 @@ public class DropOffAction : AdvanceTimeAction
             {
                 meal.IsSpawned = true;
             }
+
+            (cloneState.ItemStateList[droppedItemID] as IngredientState).IsCooking = true;
 
             meal.ContainedIngredientIDs.Add(droppedItemID);
             meal.cookDuration = Mathf.Min(meal.cookDuration, (meal.ContainedIngredientIDs.Count - 1) * MealState.COOK_TIME_PER_INGREDIENT);
@@ -273,7 +275,7 @@ public class DropOffAction : AdvanceTimeAction
                     {
                         PotState pot = currentState.ItemStateList[id] as PotState;
                         MealState meal = currentState.ItemStateList[pot.mealID] as MealState;
-                        return meal.MealSize()+1 <= PotState.MAX_ITEMS_PER_POT;
+                        return meal.MealSize()+1 <= PotState.MAX_ITEMS_PER_POT && !meal.IsBurnt();
                     }
                     else
                         return false;
@@ -399,7 +401,7 @@ public class TransferAction : AdvanceTimeAction
                     PotState pot1 = currentState.ItemStateList[id] as PotState;
                     MealState meal1 = currentState.ItemStateList[pot1.mealID] as MealState;
 
-                    return meal1.MealSize() + transferredMeal.MealSize() <= PotState.MAX_ITEMS_PER_POT;
+                    return meal1.MealSize() + transferredMeal.MealSize() <= PotState.MAX_ITEMS_PER_POT && !meal1.IsBurnt() && !transferredMeal.IsBurnt();
                 }
                 else
                     return true;
@@ -431,7 +433,7 @@ public class PrepareAction : AdvanceTimeAction
         BoardState board = cloneState.ItemStateList[id] as BoardState;
         IngredientState ingredient = cloneState.ItemStateList[board.HoldingItemID] as IngredientState;
 
-        Debug.Log("To get this up and running quickly, preparing an ingredient is a simple boolean flip");
+        //Debug.Log("To get this up and running quickly, preparing an ingredient is a simple boolean flip");
         ingredient.IsPrepared = true;
 
         return cloneState;

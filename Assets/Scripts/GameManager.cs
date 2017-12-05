@@ -167,7 +167,8 @@ public class GameManager : MonoBehaviour {
         if(Input.GetKeyDown(KeyCode.Space))
         {
             CurrentState = IM.GetWorldState();
-            planner.goal = new CookGoal();
+            //planner.goal = new CookGoal();
+            planner.goal = new FinishedMealGoal();
 
             currentPlan = planner.Search(CurrentState);
             currentPlanIndex = 0;
