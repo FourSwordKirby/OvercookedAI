@@ -8,6 +8,7 @@ public class MealState : ItemState {
     public List<int> ContainedIngredientIDs;
 
     public int cookDuration = 0;
+    public const int COOK_TIME_PER_INGREDIENT = 3;
 
     public MealState(int id, bool isSpawned, List<int> containingItemIDs)
         : base(id, ItemType.MEAL)
@@ -28,12 +29,12 @@ public class MealState : ItemState {
 
     public bool IsCooked()
     {
-        return cookDuration > ContainedIngredientIDs.Count * 3;
+        return cookDuration > ContainedIngredientIDs.Count * COOK_TIME_PER_INGREDIENT;
     }
 
     public bool IsBurnt()
     {
-        return cookDuration > (ContainedIngredientIDs.Count + 2) * 3;
+        return cookDuration > (ContainedIngredientIDs.Count + 2) * COOK_TIME_PER_INGREDIENT;
     }
 
     public override object Clone()
