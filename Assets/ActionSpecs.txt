@@ -1,0 +1,50 @@
+Design Spec:
+
+Item guidelines:
+Meals must always be in a vessel like a pot or a plate
+
+Boards can't leave the table and can only have ingredients on
+top of them
+
+pots have a fixed capacity of ingredients they can hold.
+
+The meals held on a plate can be arbitrarily large
+
+At every time step:
+If a pot is on the table, it cooks the meal inside of it
+if the meal has ingredients
+
+The time limit on completing a meal decreases
+
+
+
+
+
+
+Idle: The agent does nothing
+
+Spawn(Item type):
+An item is spawned and placed in the agents hands.
+The agent must have their hands free
+
+Pick up(Item):
+The agent picks up the associated item
+The item cannot be a the table, board, or a meal
+The agent must have their hands free
+
+Drop off(location):
+The agent must be holding an item
+The drop off location must be valid for the item that is 
+held
+Only prepared ingredients can be dropped off in plates or pots
+
+Transfer(location):
+Can only transfer between pots or plates
+
+Prepare(location):
+Can only prepare an ingredient on a board that is not yet prepared
+
+Submit:
+Can only submit a valid meal on a plate while holding the plate
+
+

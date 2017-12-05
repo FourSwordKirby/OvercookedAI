@@ -5,7 +5,6 @@ using System.Linq;
 public class PotState : ItemState
 {
     public const int MAX_ITEMS_PER_POT = 3;
-    public int currentMealSize;
 
     public int mealID;
 
@@ -13,16 +12,6 @@ public class PotState : ItemState
         : base (id, ItemType.POT)
     {
         this.mealID = MealID;
-    }
-
-    public bool IsEmpty()
-    {
-        return currentMealSize == 0;
-    }
-
-    public bool HasCapacity(int AddedItemCount)
-    {
-        return MAX_ITEMS_PER_POT > currentMealSize;
     }
 
     public override object Clone()

@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour {
 
     public List<AIState> observedStates = new List<AIState>();
 
-    public List<Action> currentPlan;
+    public List<Action> currentPlan = new List<Action>();
     public int currentPlanIndex;
 
     public Player PlayerRef;
@@ -142,24 +142,29 @@ public class GameManager : MonoBehaviour {
             currentTime++;
             print("Next Timestep");
 
-            if(currentPlanIndex < currentPlan.Count)
+            if(currentTime < observedStates.Count && currentPlanIndex != 0)
             {
-                ApplyAction(currentPlan[currentPlanIndex]);
-                if (observedStates.Count < currentTime)
-                    observedStates.Add(CurrentState);
-                else
-                    observedStates[currentTime] = CurrentState;
-
-                currentPlanIndex++;
+                IM.LoadWorldState(observedStates[currentTime]);
+            }
+            else
+            {
+                if (currentPlanIndex < currentPlan.Count)
+                {
+                    ApplyAction(currentPlan[currentPlanIndex]);
+                    currentPlanIndex++;
+                }
+                observedStates.Add(CurrentState);
             }
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            currentTime--;
-            print("Previous Timestep");
+            if(currentTime > 0)
+            {
+                currentTime--;
+                print("Previous Timestep");
 
-            IM.LoadWorldState(observedStates[currentTime]);
-            currentPlanIndex++;
+                IM.LoadWorldState(observedStates[currentTime]);
+            }
         }
 
 

@@ -192,7 +192,8 @@ public class Planner {
                     foreach (int potID in state.PotStateIndexList)
                     {
                         PotState pot = state.ItemStateList[potID] as PotState;
-                        if (pot.HasCapacity(1))
+                        MealState meal = state.ItemStateList[pot.mealID] as MealState;
+                        if (meal.MealSize() + 1 <= PotState.MAX_ITEMS_PER_POT)
                         {
                             dropoffAction = new DropOffAction(pot.ID);
                             validActions.Add(dropoffAction);
@@ -215,6 +216,7 @@ public class Planner {
             if(type == ItemType.POT)
             {
                 PotState pot = itemState as PotState;
+                MealState meal = state.ItemStateList[pot.mealID] as MealState;
 
                 //Putting the pot on the table
                 foreach (int tableID in state.TableStateIndexList)
@@ -227,7 +229,7 @@ public class Planner {
                     }
                 }
 
-                if (!pot.IsEmpty())
+                if (meal.MealSize() != 0)
                 {
                     //Moving the contents to another pot
                     foreach (int potID in state.PotStateIndexList)
@@ -236,7 +238,10 @@ public class Planner {
                         if (pot2.ID == pot.ID)
                             continue;
 
-                        if (pot2.HasCapacity(pot.currentMealSize))
+                        MealState meal2 = state.ItemStateList[pot2.mealID] as MealState;
+
+
+                        if (meal.MealSize() + meal2.MealSize() <= PotState.MAX_ITEMS_PER_POT)
                         {
                             transferAction = new TransferAction(pot.ID);
                             validActions.Add(transferAction);
@@ -275,7 +280,7 @@ public class Planner {
                 //If the plate is non-empty
                 if (!plate.IsEmpty())
                 {
-                    MealState heldMeal = state.ItemStateList[plate.MealID] as MealState;
+                    MealState heldMeal = state.ItemStateList[plate.mealID] as MealState;
 
                     //Submitting the meal
                     SubmitOrderAction submitAction = new SubmitOrderAction();
@@ -285,8 +290,9 @@ public class Planner {
                     foreach (int potID in state.PotStateIndexList)
                     {
                         PotState pot = state.ItemStateList[potID] as PotState;
+                        MealState meal = state.ItemStateList[pot.mealID] as MealState;
 
-                        if (pot.HasCapacity(heldMeal.MealSize()))
+                        if (meal.MealSize() + heldMeal.MealSize() <= PotState.MAX_ITEMS_PER_POT)
                         {
                             transferAction = new TransferAction(pot.ID);
                             validActions.Add(transferAction);
