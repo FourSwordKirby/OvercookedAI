@@ -9,6 +9,8 @@ public class ItemManager : MonoBehaviour {
     public List<int> IngredientIndexList = new List<int>();
     public List<int> TableIndexList = new List<int>();
     public List<int> BoardIndexList = new List<int>();
+    public List<int> PotIndexList = new List<int>();
+    public List<int> MealIndexList = new List<int>();
     public Player PlayerObject;
 
     public Item GetItem(int id)
@@ -41,12 +43,29 @@ public class ItemManager : MonoBehaviour {
         TableIndexList.Add(index);
         table.ID = index;
     }
+
     public void RegisterBoard(Board board)
     {
         int index = ItemList.Count;
         ItemList.Add(board);
         BoardIndexList.Add(index);
         board.ID = index;
+    }
+
+    public void RegisterPot(Pot pot)
+    {
+        int index = ItemList.Count;
+        ItemList.Add(pot);
+        PotIndexList.Add(index);
+        pot.ID = index;
+    }
+
+    public void RegisterMeal(Meal meal)
+    {
+        int index = ItemList.Count;
+        ItemList.Add(meal);
+        MealIndexList.Add(index);
+        meal.ID = index;
     }
 
     // Use this for initialization
@@ -66,9 +85,9 @@ public class ItemManager : MonoBehaviour {
         {
             ItemStateList = ItemList.Select(item => item.GetState()).ToList(),
             IngredientStateIndexList = IngredientIndexList,
-            PotStateIndexList = new List<int>(),
+            PotStateIndexList = PotIndexList,
             PlateStateIndexList = new List<int>(),
-            MealStateIndexList = new List<int>(),
+            MealStateIndexList = MealIndexList,
             BoardStateIndexList = BoardIndexList,
             TableStateIndexList = TableIndexList,
             CurrentPlayerState = PlayerObject.GetPlayerState(),

@@ -5,41 +5,41 @@ using UnityEngine;
 
 public class Table : Item {
 
-    public int ItemIDOnTable;
+    public Item HeldItem;
     public Vector3 HoldingPosition;
 
     private void Awake()
     {
-        ItemIDOnTable = Item.NOTHING_ID;
         HoldingPosition = transform.Find("Holding Position").position;
     }
 
     public void Start()
     {
-        ItemManager im = FindObjectOfType<ItemManager>();
-        if(im == null)
+        GetItemManager().RegisterTableItem(this);
+        if (HeldItem != null)
         {
-            Debug.LogError("Missing ItemManager!");
-        }
-        else
-        {
-            im.RegisterTableItem(this);
+            Debug.Log("Moved item " + HeldItem.name + " to table holding position.");
+            HeldItem.transform.position = HoldingPosition;
         }
     }
     
 
     public override ItemState GetState()
     {
-        return new TableSpace(ID, ItemIDOnTable);
+        return new TableSpace(ID, HeldItem == null ? Item.NOTHING_ID : HeldItem.ID);
     }
 
     public override void LoadState(ItemState state)
     {
         TableSpace tState = state as TableSpace;
-        ItemIDOnTable = tState.ItemIDOnTable;
-        if (ItemIDOnTable != Item.NOTHING_ID)
+
+        if (!tState.IsFree())
         {
-            GetItemManager().ItemList[tState.ItemIDOnTable].transform.position = HoldingPosition;
+            HeldItem = GetItemManager().ItemList[tState.ItemIDOnTable];
+            if (HeldItem != null)
+            {
+                HeldItem.transform.position = HoldingPosition;
+            }
         }
     }
 }
