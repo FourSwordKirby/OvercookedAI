@@ -24,7 +24,8 @@ public class GameManager : MonoBehaviour {
     public GameObject HighlightedObject;
     public GameObject Highlighter;
     public GameObject HighlightPrefab;
-    public Action HighlightedAction;
+    public Action ZAction;
+    public Action XAction;
     public int HighlightedIndex;
     public AIState CurrentState;
 
@@ -69,6 +70,9 @@ public class GameManager : MonoBehaviour {
 
     private GameObject GetHighlight(int step)
     {
+        ZAction = null;
+        XAction = null;
+
         HighlightedIndex += step;
         if (HighlightedIndex >= IM.ItemList.Count)
         {
@@ -83,10 +87,33 @@ public class GameManager : MonoBehaviour {
         {
             if (!PlayerRef.IsHolding)
             {
+                PrepareAction prepAction = null;
+                if (IM.ItemList[HighlightedIndex].MyItemType == ItemType.INGREDIENT)
+                {
+                    foreach (int boardID in IM.BoardIndexList)
+                    {
+                        Board b = IM.ItemList[boardID] as Board;
+                        if (b.HoldingItem != null && b.HoldingItem.ID == HighlightedIndex)
+                        {
+                            prepAction = new PrepareAction(boardID);
+                            XAction = prepAction;
+                            break;
+                        }
+                    }
+                }
+                
                 PickUpAction puAction = new PickUpAction(HighlightedIndex);
                 if (puAction.isValid(CurrentState))
                 {
-                    HighlightedAction = puAction;
+                    ZAction = puAction;
+                }
+                else
+                {
+                    puAction = null;
+                }
+
+                if (puAction != null || prepAction != null)
+                {
                     return IM.ItemList[HighlightedIndex].gameObject;
                 }
                 else
@@ -99,7 +126,7 @@ public class GameManager : MonoBehaviour {
                 DropOffAction doAction = new DropOffAction(HighlightedIndex);
                 if (doAction.isValid(CurrentState))
                 {
-                    HighlightedAction = doAction;
+                    ZAction = doAction;
                     return IM.ItemList[HighlightedIndex].gameObject;
                 }
                 else
@@ -114,7 +141,7 @@ public class GameManager : MonoBehaviour {
             SpawnAction sAction = new SpawnAction(IM.IngredientSpawners[spawnerIndex].MyIngredientType);
             if (sAction.isValid(CurrentState))
             {
-                HighlightedAction = sAction;
+                ZAction = sAction;
                 return IM.IngredientSpawners[spawnerIndex].gameObject;
             }
             else
@@ -181,12 +208,32 @@ public class GameManager : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            Debug.Log("Applying action...");
-            CurrentState = HighlightedAction.ApplyAction(CurrentState);
-            IM.LoadWorldState(CurrentState);
-            NextHighlight();
+            if (ZAction == null)
+            {
+                Debug.Log("There is no Z Action");
+            }
+            else
+            {
+                Debug.Log("Applying Z action...");
+                ApplyAction(ZAction);
+                NextHighlight();
+            }
         }
-	}
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            if (XAction == null)
+            {
+                Debug.Log("There is no X Action");
+            }
+            else
+            {
+                Debug.Log("Applying X action...");
+                ApplyAction(XAction);
+                NextHighlight();
+            }
+        }
+    }
 
     private void ApplyAction(Action a)
     {
