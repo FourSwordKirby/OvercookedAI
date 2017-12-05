@@ -9,7 +9,6 @@ public class Meal : Item
 {
     public List<Ingredient> HeldIngredients = new List<Ingredient>();
     public bool IsSpawned;
-    public bool IsSubmitted;
     public int CookDuration;
     public bool IsBurnt;
     public bool IsCooked;
@@ -42,7 +41,7 @@ public class Meal : Item
     public override ItemState GetState()
     {
         List<int> ingIDs = HeldIngredients.Select(ing => ing.ID).ToList();
-        return new MealState(ID, IsSpawned, ingIDs);
+        return new MealState(ID, IsSpawned, CookDuration, ingIDs);
     }
 
     public override void LoadState(ItemState state)

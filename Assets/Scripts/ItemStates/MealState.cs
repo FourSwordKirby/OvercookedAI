@@ -6,14 +6,15 @@ public class MealState : ItemState {
 
     public bool IsSpawned;
     public List<int> ContainedIngredientIDs;
-
     public int cookDuration = 0;
+
     public const int COOK_TIME_PER_INGREDIENT = 3;
 
-    public MealState(int id, bool isSpawned, List<int> containingItemIDs)
+    public MealState(int id, bool isSpawned, int time, List<int> containingItemIDs)
         : base(id, ItemType.MEAL)
     {
         IsSpawned = isSpawned;
+        cookDuration = time;
         ContainedIngredientIDs = containingItemIDs;
     }
 
@@ -39,7 +40,9 @@ public class MealState : ItemState {
 
     public override object Clone()
     {
-        return new MealState(ID, IsSpawned, new List<int>(ContainedIngredientIDs));
+        MealState newState = MemberwiseClone() as MealState;
+        newState.ContainedIngredientIDs = new List<int>(newState.ContainedIngredientIDs);
+        return newState;
     }
 
     public override bool Equals(object obj)
@@ -56,6 +59,7 @@ public class MealState : ItemState {
         }
 
         return this.ID == otherState.ID
+            && this.cookDuration == otherState.cookDuration
             && this.ContainedIngredientIDs.All(id => otherState.ContainedIngredientIDs.Contains(id));
 
     }
@@ -66,10 +70,15 @@ public class MealState : ItemState {
         {
             int ret = 17;
             ret = 33 * ret + ID;
+            ret = 33 * ret + cookDuration;
+
+            int grouphash = 0;
             foreach (int id in ContainedIngredientIDs)
             {
-                ret = 33 * ret + id;
+                grouphash ^= Utility.HashInt(id);
             }
+            ret = 33 * ret + grouphash;
+
             return ret;
         }
     }
