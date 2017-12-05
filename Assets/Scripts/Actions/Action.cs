@@ -328,7 +328,8 @@ public class TransferAction : AdvanceTimeAction
             PotState pot = cloneState.ItemStateList[id] as PotState;
             MealState meal2 = cloneState.ItemStateList[pot.mealID] as MealState;
 
-            int cookDuration = Mathf.Max(meal1.cookDuration, meal2.cookDuration);
+            int cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT)
+                                + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT) + 1; 
             meal2.cookDuration = cookDuration;
 
             meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
@@ -341,7 +342,8 @@ public class TransferAction : AdvanceTimeAction
             PlateState plate = cloneState.ItemStateList[id] as PlateState;
             MealState meal2 = cloneState.ItemStateList[plate.mealID] as MealState;
 
-            int cookDuration = Mathf.Max(meal1.cookDuration, meal2.cookDuration);
+            int cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT)
+                                + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT) + 1;
             meal2.cookDuration = cookDuration;
 
             meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
@@ -359,6 +361,8 @@ public class TransferAction : AdvanceTimeAction
         else
         {
             int droppedItemID = currentState.CurrentPlayerState.HoldingItemID;
+            if (droppedItemID == id)
+                return false;
 
             if (currentState.ItemStateList[droppedItemID].MyItemType == ItemType.MEAL
                 || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.TABLE
@@ -486,7 +490,7 @@ public class SubmitOrderAction : AdvanceTimeAction
         // S.C. Do not remove meal from plate. We just give up the plate entirely.
         plate.IsSubmitted = true;
 
-        Debug.Log("Potentially score the meal submission here?");
+        //Debug.Log("Potentially score the meal submission here?");
 
         return cloneState;
     }

@@ -204,8 +204,11 @@ public class Planner {
                     foreach (int plateID in state.PlateStateIndexList)
                     {
                         PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        dropoffAction = new DropOffAction(plate.ID);
-                        validActions.Add(dropoffAction);
+                        if(!plate.IsSubmitted)
+                        {
+                            dropoffAction = new DropOffAction(plate.ID);
+                            validActions.Add(dropoffAction);
+                        }
                     }
                 }
             }
@@ -251,8 +254,11 @@ public class Planner {
                     foreach (int plateID in state.PlateStateIndexList)
                     {
                         PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        transferAction = new TransferAction(plate.ID);
-                        validActions.Add(transferAction);
+                        if (!plate.IsSubmitted)
+                        {
+                            transferAction = new TransferAction(plate.ID);
+                            validActions.Add(transferAction);
+                        }
                     }
                 }
             }
@@ -278,8 +284,11 @@ public class Planner {
                     MealState heldMeal = state.ItemStateList[plate.mealID] as MealState;
 
                     //Submitting the meal
-                    SubmitOrderAction submitAction = new SubmitOrderAction();
-                    validActions.Add(submitAction);
+                    if(heldMeal.IsCooked())
+                    {
+                        SubmitOrderAction submitAction = new SubmitOrderAction();
+                        validActions.Add(submitAction);
+                    }
 
                     //Moving meal to a pot
                     foreach (int potID in state.PotStateIndexList)
@@ -299,6 +308,9 @@ public class Planner {
                     {
                         PlateState plate2 = state.ItemStateList[plateID] as PlateState;
                         if (plate2.ID == plate.ID)
+                            continue;
+
+                        if (plate2.IsSubmitted)
                             continue;
 
                         if (plate2.IsEmpty())
@@ -321,7 +333,7 @@ public class Planner {
     public float Heuristic(AIState state)
     {
         int h = 0;
-        float epsilon = 10.0f;
+        float epsilon = 2.0f;
 
 
         foreach (int ingredientID in state.IngredientStateIndexList)
