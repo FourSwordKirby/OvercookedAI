@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class Meal : Item
 {
     public List<Ingredient> HeldIngredients = new List<Ingredient>();
+    public MealState meal;
     public bool IsSpawned;
     public int CookDuration;
     public bool IsBurnt;
@@ -16,6 +17,12 @@ public class Meal : Item
     private Text MyText;
     private GameObject Model;
     private RectTransform Canvas;
+
+    public Image ProgressBar;
+    public GameObject OnionTracker;
+    public TextMesh OnionCount;
+    public GameObject MushroomTracker;
+    public TextMesh MushroomCount;
 
     private void Awake()
     {
@@ -32,10 +39,28 @@ public class Meal : Item
 
     private void Update()
     {
+        int onions = 0;
+        int mushrooms = 0;
         foreach (Ingredient ing in HeldIngredients)
         {
             ing.transform.position = transform.position + 5 * Vector3.down;
+            float cookingProgress = meal.CurrentCookingProgress();
+            float burningProgress = meal.CurrentBurningProgress();
+
+            ProgressBar.fillAmount = cookingProgress;
+            ProgressBar.color = Color.Lerp(Color.green, Color.red, burningProgress);
+
+            if (ing.MyIngredientType == IngredientType.ONION)
+                onions++;
+            if (ing.MyIngredientType == IngredientType.MUSHROOM)
+                mushrooms++;
         }
+
+        OnionCount.text = onions.ToString();
+        MushroomCount.text = mushrooms.ToString();
+        
+        OnionTracker.SetActive(onions != 0);
+        MushroomTracker.SetActive(mushrooms != 0);
     }
 
     public override ItemState GetState()
@@ -47,6 +72,7 @@ public class Meal : Item
     public override void LoadState(ItemState state)
     {
         MealState mState = state as MealState;
+        meal = mState;
         HeldIngredients.Clear();
         HeldIngredients.AddRange(mState.ContainedIngredientIDs.Select(id => GetItemManager().ItemList[id] as Ingredient));
         IsSpawned = mState.IsSpawned();
