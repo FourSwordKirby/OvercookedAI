@@ -56,7 +56,7 @@ public class MealState : ItemState {
 
     public float CurrentBurningProgress()
     {
-        return Mathf.Max(0, (float)(cookDuration - ContainedIngredientIDs.Count * COOK_TIME_PER_INGREDIENT) / (float)(2 * COOK_TIME_PER_INGREDIENT));
+        return Mathf.Max(0, (float)(cookDuration - (ContainedIngredientIDs.Count * COOK_TIME_PER_INGREDIENT + 1)) / (float)(2 * COOK_TIME_PER_INGREDIENT));
     }
 
 

@@ -227,6 +227,7 @@ public class DropOffAction : AdvanceTimeAction
 
             (cloneState.ItemStateList[droppedItemID] as IngredientState).IsInMeal = true;
             meal.ContainedIngredientIDs.Add(droppedItemID);
+            meal.cookDuration = Mathf.Min(meal.cookDuration, (meal.ContainedIngredientIDs.Count - 1) * MealState.COOK_TIME_PER_INGREDIENT);
         }
         return cloneState;
     }
@@ -279,8 +280,12 @@ public class DropOffAction : AdvanceTimeAction
                     return false;
                 else
                 {
-                    return ((currentState.ItemStateList[droppedItemID] as IngredientState).IsPrepared &&
-                            (currentState.ItemStateList[droppedItemID] as IngredientState).IsSpawned);
+                    PlateState plate = currentState.ItemStateList[id] as PlateState;
+                    MealState meal = currentState.ItemStateList[plate.mealID] as MealState;
+                    return (currentState.ItemStateList[droppedItemID] as IngredientState).IsPrepared
+                        && (currentState.ItemStateList[droppedItemID] as IngredientState).IsSpawned
+                        && !plate.IsSubmitted
+                        && !meal.IsBurnt();
                 }
             }
             else
@@ -302,6 +307,47 @@ public class TransferAction : AdvanceTimeAction
     public TransferAction(int id)
     {
         this.id = id;
+    }
+
+    private int CombineCookDurations(MealState meal1, MealState meal2)
+    {
+        return CombineCookDurations_Stephen(meal1, meal2);
+        //return CombineCookDurations_Roger(meal1, meal2);
+    }
+
+    private int CombineCookDurations_Roger(MealState meal1, MealState meal2)
+    {
+        int cookDuration = 0;
+        if (meal2.IsSpawned())
+        {
+            cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1)
+                                + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1);
+        }
+        else
+        {
+            cookDuration = meal1.cookDuration;
+        }
+
+        if (meal1.IsCooked() && meal2.IsCooked())
+            cookDuration--;
+
+        return cookDuration;
+    }
+
+    private int CombineCookDurations_Stephen(MealState meal1, MealState meal2)
+    {
+        int cookDuration = 0;
+        if (meal2.IsSpawned())
+        {
+            cookDuration = Mathf.Min(Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1),
+                                     Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1));
+        }
+        else
+        {
+            cookDuration = meal1.cookDuration;
+        }
+
+        return cookDuration;
     }
 
     public override AIState ApplyAction(AIState currentState)
@@ -328,19 +374,8 @@ public class TransferAction : AdvanceTimeAction
             PotState pot = cloneState.ItemStateList[id] as PotState;
             MealState meal2 = cloneState.ItemStateList[pot.mealID] as MealState;
 
-            int cookDuration = 0;
-            if(meal2.IsSpawned())
-                cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT+1)
-                                    + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT+1);
-            else
-                cookDuration = meal1.cookDuration;
-
-            if (meal1.IsCooked() && meal2.IsCooked())
-                cookDuration--;
-
-
+            int cookDuration = CombineCookDurations(meal1, meal2);
             meal2.cookDuration = cookDuration;
-
 
             meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
 
@@ -352,17 +387,7 @@ public class TransferAction : AdvanceTimeAction
             PlateState plate = cloneState.ItemStateList[id] as PlateState;
             MealState meal2 = cloneState.ItemStateList[plate.mealID] as MealState;
 
-            int cookDuration = 0;
-            if (meal2.IsSpawned())
-                cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1)
-                                    + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1);
-            else
-                cookDuration = meal1.cookDuration;
-
-            if (meal1.IsCooked() && meal2.IsCooked())
-                cookDuration--;
-
-
+            int cookDuration = CombineCookDurations(meal1, meal2);
             meal2.cookDuration = cookDuration;
 
             meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
@@ -376,51 +401,65 @@ public class TransferAction : AdvanceTimeAction
     public override bool isValid(AIState currentState)
     {
         if (currentState.CurrentPlayerState.HandsFree())
+        {
             return false;
+        }
+
+        int droppedItemID = currentState.CurrentPlayerState.HoldingItemID;
+        if (droppedItemID == id)
+        {
+            return false;
+        }
+
+        ItemState droppedItem = currentState.ItemStateList[droppedItemID];
+        if (!(droppedItem.MyItemType == ItemType.POT || droppedItem.MyItemType == ItemType.PLATE))
+        {
+            return false;
+        }
+
+        ItemState receivingItem = currentState.ItemStateList[id];
+        if (!(receivingItem.MyItemType == ItemType.POT || receivingItem.MyItemType == ItemType.PLATE))
+        {
+            return false;
+        }
+
+        MealState transferredMeal;
+        if (droppedItem.MyItemType == ItemType.POT)
+        {
+            PotState pot = (droppedItem as PotState);
+            transferredMeal = (currentState.ItemStateList[pot.mealID] as MealState);
+        }
         else
         {
-            int droppedItemID = currentState.CurrentPlayerState.HoldingItemID;
-            if (droppedItemID == id)
-                return false;
-
-            if (currentState.ItemStateList[droppedItemID].MyItemType == ItemType.MEAL
-                || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.TABLE
-                || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.BOARD
-                || currentState.ItemStateList[droppedItemID].MyItemType == ItemType.INGREDIENT)
-                return false;
-
-            if (currentState.ItemStateList[id].MyItemType == ItemType.MEAL
-                || currentState.ItemStateList[id].MyItemType == ItemType.TABLE
-                || currentState.ItemStateList[id].MyItemType == ItemType.BOARD
-                || currentState.ItemStateList[id].MyItemType == ItemType.INGREDIENT)
-                return false;
-
-            MealState transferredMeal;
-            if(currentState.ItemStateList[droppedItemID].MyItemType == ItemType.POT)
+            PlateState plate = (droppedItem as PlateState);
+            if (plate.IsSubmitted)
             {
-                PotState pot = (currentState.ItemStateList[droppedItemID] as PotState);
-                transferredMeal = (currentState.ItemStateList[pot.mealID] as MealState);
-            }
-            else
-            {
-                PlateState plate = (currentState.ItemStateList[droppedItemID] as PlateState);
-                transferredMeal = (currentState.ItemStateList[plate.mealID] as MealState);
+                return false;
             }
 
-            if (!transferredMeal.IsSpawned())
-                return false;
-            else
-            {
-                if (currentState.ItemStateList[id].MyItemType == ItemType.POT)
-                {
-                    PotState pot1 = currentState.ItemStateList[id] as PotState;
-                    MealState meal1 = currentState.ItemStateList[pot1.mealID] as MealState;
+            transferredMeal = (currentState.ItemStateList[plate.mealID] as MealState);
+        }
 
-                    return meal1.MealSize() + transferredMeal.MealSize() <= PotState.MAX_ITEMS_PER_POT && !meal1.IsBurnt() && !transferredMeal.IsBurnt();
-                }
-                else
-                    return true;
-            }
+        if (!transferredMeal.IsSpawned() || transferredMeal.IsBurnt())
+        {
+            return false;
+        }
+
+        if (receivingItem.MyItemType == ItemType.POT)
+        {
+            PotState pot1 = receivingItem as PotState;
+            MealState meal1 = currentState.ItemStateList[pot1.mealID] as MealState;
+
+            return meal1.MealSize() + transferredMeal.MealSize() <= PotState.MAX_ITEMS_PER_POT
+                && !meal1.IsBurnt();
+        }
+        else
+        {
+            PlateState plate1 = receivingItem as PlateState;
+            MealState meal1 = currentState.ItemStateList[plate1.mealID] as MealState;
+
+            return !plate1.IsSubmitted
+                && !meal1.IsBurnt();
         }
     }
 
@@ -491,7 +530,7 @@ public class SubmitOrderAction : AdvanceTimeAction
     {
         AIState cloneState = base.ApplyAction(currentState);
 
-        int heldItemID = cloneState.CurrentPlayerState.HoldingItemID;
+        int heldItemID = cloneState.CurrentPlayerState.Drop();
 
         PlateState plate = (cloneState.ItemStateList[heldItemID] as PlateState);
         MealState meal = cloneState.ItemStateList[plate.mealID] as MealState;

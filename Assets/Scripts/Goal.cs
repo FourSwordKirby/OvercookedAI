@@ -71,8 +71,12 @@ public class FinishedMealGoal : Goal
                     int onionCount = mealIngredientCounts[holdingMealIndex, (int)IngredientType.ONION];
                     int mushroomCount = mealIngredientCounts[holdingMealIndex, (int)IngredientType.MUSHROOM];
 
-                    if (onionCount == count[(int)IngredientType.ONION]
-                       && mushroomCount == count[(int)IngredientType.MUSHROOM])
+                    MealState meal = currentState.ItemStateList[plate.mealID] as MealState;
+
+                    if (meal.IsCooked()
+                        && !meal.IsBurnt()
+                        && onionCount == count[(int)IngredientType.ONION]
+                        && mushroomCount == count[(int)IngredientType.MUSHROOM])
                     {
                         found = true;
                         plateUsed[plateIndex] = true;

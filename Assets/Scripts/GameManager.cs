@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour {
     public int currentPlanIndex;
 
     public Player PlayerRef;
+    public GameObject PlayerStartLocation;
     public GameObject HighlightedObject;
     public GameObject Highlighter;
     public GameObject HighlightPrefab;
@@ -40,6 +41,8 @@ public class GameManager : MonoBehaviour {
     {
         IM = FindObjectOfType<ItemManager>();
         PlayerRef = FindObjectOfType<Player>();
+        PlayerStartLocation = new GameObject("Player Start Location");
+        PlayerStartLocation.transform.position = PlayerRef.transform.position;
         CurrentGoal = new FinishedMealGoal(goalRecipes);
         CurrentHeuristic = new IngredientBasedHeuristic(CurrentGoal);
         Debug.Log("Start set the goal to be: " + CurrentGoal);
@@ -251,6 +254,13 @@ public class GameManager : MonoBehaviour {
             SearchToCompletion();
         }
 
+        if (Input.GetKeyDown(KeyCode.Comma))
+        {
+            AIState temp = planner.PeekOpenSet();
+            IM.LoadWorldState(temp);
+            Debug.Log("Visualizing top of heap. " + CurrentHeuristic + " = " + CurrentHeuristic.GetHeuristic(temp));
+        }
+
         // Choose highlighted item
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
@@ -324,17 +334,32 @@ public class GameManager : MonoBehaviour {
             HighlightedObject = IM.SubmittedTableRef.gameObject;
         }
 
-        Highlighter.transform.position = new Vector3(
-            HighlightedObject.transform.position.x,
-            Highlighter.transform.position.y,
-            HighlightedObject.transform.position.z);
-        PlayerRef.transform.position = Vector3.right * Highlighter.transform.position.x
-                                        + Vector3.forward * (Highlighter.transform.position.z + 1);
+        if (a is IdleAction)
+        {
+            HighlightedObject = PlayerStartLocation;
+            Highlighter.transform.position = new Vector3(
+                HighlightedObject.transform.position.x,
+                Highlighter.transform.position.y,
+                HighlightedObject.transform.position.z);
+            PlayerRef.transform.position = Vector3.right * Highlighter.transform.position.x
+                                            + Vector3.forward * Highlighter.transform.position.z;
+        }
+        else
+        {
+            Highlighter.transform.position = new Vector3(
+                HighlightedObject.transform.position.x,
+                Highlighter.transform.position.y,
+                HighlightedObject.transform.position.z);
+            PlayerRef.transform.position = Vector3.right * Highlighter.transform.position.x
+                                            + Vector3.forward * (Highlighter.transform.position.z + 1);
+
+        }
+
 
         Debug.Log("Applying action: " + a.ToString(CurrentState));
         if (!a.isValid(CurrentState))
         {
-            Debug.Log("Action is not valid. Ignoring.");
+            Debug.LogError("Action is not valid. Ignoring.");
             return;
         }
 
@@ -347,12 +372,21 @@ public class GameManager : MonoBehaviour {
     //Used by the buttons
     public void ResetWorld()
     {
-        CurrentState = observedStates[0];
+        if (observedStates.Count > 0)
+        {
+            CurrentState = observedStates[0].Clone() as AIState;
+        }
+        else
+        {
+            CurrentState = CurrentState.Clone() as AIState;
+        }
+
         Debug.Log(CurrentHeuristic + " = " + CurrentHeuristic.GetHeuristic(CurrentState));
         IM.LoadWorldState(CurrentState);
         currentTime = 0;
         observedStates.Clear();
-        currentPlan.Clear();
+        currentPlan = null;
+        observedStates.Add(CurrentState);
     }
 
     public void BeginSearch()
@@ -360,7 +394,7 @@ public class GameManager : MonoBehaviour {
         CurrentState = IM.GetWorldState();
         //planner.goal = new CookGoal();
 
-        planner = new Planner(CurrentGoal, CurrentState, CurrentHeuristic, 10f);
+        planner = new Planner(CurrentGoal, CurrentState, CurrentHeuristic);
         planner.SearchToCompletion();
         currentPlan = planner.Plan;
         currentPlanIndex = 0;
@@ -374,7 +408,7 @@ public class GameManager : MonoBehaviour {
     public void SetPlanner()
     {
         CurrentState = IM.GetWorldState();
-        planner = new Planner(CurrentGoal, CurrentState, CurrentHeuristic, 10f);
+        planner = new Planner(CurrentGoal, CurrentState, CurrentHeuristic);
         Debug.Log("Planner set.");
     }
 
@@ -408,27 +442,30 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public static List<IngredientType> OnionSoup = new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.ONION };
+    public static List<IngredientType> MushroomSoup = new List<IngredientType>() { IngredientType.MUSHROOM, IngredientType.MUSHROOM, IngredientType.MUSHROOM };
+
     List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
         {
-            //new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM}
-            new List<IngredientType>() { IngredientType.ONION}
+            OnionSoup
+            //new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION }
             //, new List<IngredientType>() { IngredientType.MUSHROOM }
         };
 
     public void AddOnionSoupOrder()
     {
-        goalRecipes.Add(new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.ONION });
+        goalRecipes.Add(OnionSoup);
         CurrentGoal = new FinishedMealGoal(goalRecipes);
         CurrentHeuristic = new IngredientBasedHeuristic(CurrentGoal);
-        Debug.Log("Goal updated to: " + CurrentGoal);
+        Debug.Log("Goal updated to: " + CurrentGoal + ", Heuristic: " + CurrentHeuristic);
     }
 
     public void AddMushroomSoupOrder()
     {
-        goalRecipes.Add(new List<IngredientType>() { IngredientType.MUSHROOM, IngredientType.MUSHROOM, IngredientType.MUSHROOM });
+        goalRecipes.Add(MushroomSoup);
         CurrentGoal = new FinishedMealGoal(goalRecipes);
         CurrentHeuristic = new IngredientBasedHeuristic(CurrentGoal);
-        Debug.Log("Goal updated to: " + CurrentGoal);
+        Debug.Log("Goal updated to: " + CurrentGoal + ", Heuristic: " + CurrentHeuristic);
     }
 
     public void Autoplay()

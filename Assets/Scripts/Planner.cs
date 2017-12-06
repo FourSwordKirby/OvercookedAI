@@ -14,7 +14,7 @@ public class Planner {
     public Goal TargetGoal;
     public AIState StartState;
     public Heuristic HeuristicStrategy;
-    public float Epsilon = 10.0f;
+    public float Epsilon;
     public int Cost = 1;
     public List<Action> Plan;
 
@@ -24,7 +24,7 @@ public class Planner {
     public Dictionary<AIState, AIState> AllStates = new Dictionary<AIState, AIState>(new AIStateComparator());
     public System.Diagnostics.Stopwatch Watch = new System.Diagnostics.Stopwatch();
 
-    public Planner(Goal goal, AIState startState, Heuristic h, float epsilon)
+    public Planner(Goal goal, AIState startState, Heuristic h, float epsilon = 1.5f)
     {
         TargetGoal = goal;
         StartState = startState.Clone() as AIState;
@@ -90,9 +90,12 @@ public class Planner {
             return;
         }
 
+        System.Diagnostics.Stopwatch methodWatch = new System.Diagnostics.Stopwatch();
+
         Debug.Log("Searching to completion, current goal is: " + TargetGoal + ", heuristic is: " + HeuristicStrategy);
+        methodWatch.Start();
         Watch.Start();
-        while(OpenSet.Count > 0)
+        while (OpenSet.Count > 0)
         {
             AIState currentState = OpenSet.Dequeue().Value;
             if(currentState.IsClosed)
@@ -104,6 +107,7 @@ public class Planner {
             if (done)
             {
                 Watch.Stop();
+                methodWatch.Stop();
                 // Backtrack
                 List<Action> plan = new List<Action>();
                 while (currentState != StartState)
@@ -120,8 +124,16 @@ public class Planner {
                 Debug.Log("Closed set: " + NumberClosedStates + " | Open set:" + (AllStates.Count - NumberClosedStates));
                 return;
             }
+
+            int timeoutSeconds = 60;
+            if (methodWatch.ElapsedMilliseconds > timeoutSeconds * 1000)
+            {
+                Debug.LogError("Planner has taken over " + timeoutSeconds + " seconds. Aborting.");
+                break;
+            }
         }
-        
+
+        Watch.Stop();
         Debug.LogError("Plan not found");
         Debug.Log("Search completed in: " + (Watch.ElapsedMilliseconds / 1000f) + " sec");
         Debug.Log("Closed set: " + NumberClosedStates + " | Open set:" + (AllStates.Count - NumberClosedStates));
@@ -177,10 +189,31 @@ public class Planner {
             }
         }
 
+        methodWatch.Stop();
+        Watch.Stop();
         Debug.Log(maxExpansion + " expansions completed in " + (methodWatch.ElapsedMilliseconds / 1000f) + " sec");
         Debug.Log("Current total search time: " + (Watch.ElapsedMilliseconds / 1000f) + " sec");
         Debug.Log("Closed set: " + NumberClosedStates + " | Open set:" + (AllStates.Count - NumberClosedStates));
         return;
+    }
+
+    public int EvaluateCost(AIState state)
+    {
+        int[,] counts = state.GetMealIngredientCounts();
+        foreach (List<int> goalRecipeCount in (TargetGoal as FinishedMealGoal).IngredientCountsPerRecipe)
+        {
+            foreach (int mealListIndex in state.PlateToMeal)
+            {
+
+            }
+        }
+
+        return Cost;
+    }
+
+    public AIState PeekOpenSet()
+    {
+        return OpenSet.Peek().Value;
     }
 
     /// <summary>
@@ -300,7 +333,8 @@ public class Planner {
                     foreach (int plateID in state.PlateStateIndexList)
                     {
                         PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        if(!plate.IsSubmitted)
+                        MealState meal = state.ItemStateList[plate.mealID] as MealState;
+                        if (!plate.IsSubmitted && !meal.IsBurnt())
                         {
                             dropoffAction = new DropOffAction(plate.ID);
                             validActions.Add(dropoffAction);
@@ -325,36 +359,23 @@ public class Planner {
                     }
                 }
 
-                if (meal.MealSize() != 0)
+                //Moving meal to a pot
+                foreach (int potID in state.PotStateIndexList)
                 {
-                    //Moving the contents to another pot
-                    foreach (int potID in state.PotStateIndexList)
+                    transferAction = new TransferAction(potID);
+                    if (transferAction.isValid(state))
                     {
-                        PotState pot2 = state.ItemStateList[potID] as PotState;
-                        if (pot2.ID == pot.ID)
-                            continue;
-
-                        MealState meal2 = state.ItemStateList[pot2.mealID] as MealState;
-
-
-                        if (meal.MealSize() + meal2.MealSize() <= PotState.MAX_ITEMS_PER_POT &&
-                            !meal.IsBurnt() && !meal2.IsBurnt())
-                        {
-                            transferAction = new TransferAction(pot.ID);
-                            validActions.Add(transferAction);
-                        }
+                        validActions.Add(transferAction);
                     }
-                   
+                }
 
-                    //Moving the meal to a plate
-                    foreach (int plateID in state.PlateStateIndexList)
+                //Moving the meal to another plate
+                foreach (int plateID in state.PlateStateIndexList)
+                {
+                    transferAction = new TransferAction(plateID);
+                    if (transferAction.isValid(state))
                     {
-                        PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        if (!plate.IsSubmitted)
-                        {
-                            transferAction = new TransferAction(plate.ID);
-                            validActions.Add(transferAction);
-                        }
+                        validActions.Add(transferAction);
                     }
                 }
             }
@@ -375,9 +396,9 @@ public class Planner {
                 }
 
                 //If the plate is non-empty
-                if (!plate.IsEmpty())
+                MealState heldMeal = state.ItemStateList[plate.mealID] as MealState;
+                if (heldMeal.IsSpawned())
                 {
-                    MealState heldMeal = state.ItemStateList[plate.mealID] as MealState;
 
                     //Submitting the meal
                     if(heldMeal.IsCooked())
@@ -389,12 +410,9 @@ public class Planner {
                     //Moving meal to a pot
                     foreach (int potID in state.PotStateIndexList)
                     {
-                        PotState pot = state.ItemStateList[potID] as PotState;
-                        MealState meal = state.ItemStateList[pot.mealID] as MealState;
-
-                        if (meal.MealSize() + heldMeal.MealSize() <= PotState.MAX_ITEMS_PER_POT)
+                        transferAction = new TransferAction(potID);
+                        if (transferAction.isValid(state))
                         {
-                            transferAction = new TransferAction(pot.ID);
                             validActions.Add(transferAction);
                         }
                     }
@@ -402,16 +420,9 @@ public class Planner {
                     //Moving the meal to another plate
                     foreach (int plateID in state.PlateStateIndexList)
                     {
-                        PlateState plate2 = state.ItemStateList[plateID] as PlateState;
-                        if (plate2.ID == plate.ID)
-                            continue;
-
-                        if (plate2.IsSubmitted)
-                            continue;
-
-                        if (plate2.IsEmpty())
+                        transferAction = new TransferAction(plateID);
+                        if (transferAction.isValid(state))
                         {
-                            transferAction = new TransferAction(plate.ID);
                             validActions.Add(transferAction);
                         }
                     }

@@ -49,6 +49,10 @@ public class Meal : Item
 
             ProgressBar.fillAmount = cookingProgress;
             ProgressBar.color = Color.Lerp(Color.green, Color.red, burningProgress);
+            if (burningProgress >= 1)
+            {
+                ProgressBar.color = Color.black;
+            }
 
             if (ing.MyIngredientType == IngredientType.ONION)
                 onions++;
@@ -86,7 +90,7 @@ public class Meal : Item
     public void UpdateVisuals()
     {
         MyText.text = "Time: " + CookDuration + "\n";
-        MyText.text += "IDs: " + string.Join(", ", HeldIngredients.Select(ing => ing.ID.ToString()).ToArray());
+        MyText.text += "IDs: " + string.Join(", ", HeldIngredients.Select(ing => ing.ID.ToString()).ToArray()) + "\n";
         MyText.text += IsCooked ? "COOKED!\n" : "";
         MyText.text += IsBurnt ? "BURNT!\n" : "";
         Model.SetActive(IsSpawned);

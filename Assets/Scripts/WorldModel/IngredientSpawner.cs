@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class IngredientSpawner : MonoBehaviour {
 
-    public const int MAX_NUMBER_OF_INGREDIENTS = 2;
+    public const int MAX_NUMBER_OF_INGREDIENTS = 6;
     public IngredientType MyIngredientType;
     public Ingredient IngredientPrefab;
     public List<Ingredient> SpawnedIngredients;

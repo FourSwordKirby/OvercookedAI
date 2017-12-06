@@ -86,43 +86,85 @@ public class IngredientBasedHeuristic : Heuristic
         int[,] mealIngredientCounts = state.GetMealIngredientCounts();
         for (int goalIndex = 0; goalIndex < Goal.GoalRecipes.Count; ++goalIndex)
         {
-            int minGoalCookTime = 1000000;
+            int neededCookTime = Goal.GoalRecipes[goalIndex].Count * MealState.COOK_TIME_PER_INGREDIENT + 1;
+            int minGoalCookTime = neededCookTime;
             bool submitted = false;
             List<int> goalRecipe = Goal.IngredientCountsPerRecipe[goalIndex];
             for (int mealListIndex = 0; mealListIndex < state.MealStateIndexList.Count; ++mealListIndex)
             {
-                if (mealIngredientCounts[mealListIndex, (int)IngredientType.ONION] <= goalRecipe[(int)IngredientType.ONION]
-                    && mealIngredientCounts[mealListIndex, (int)IngredientType.MUSHROOM] <= goalRecipe[(int)IngredientType.MUSHROOM])
+                MealState meal = state.ItemStateList[state.MealStateIndexList[mealListIndex]] as MealState;
+                if (!meal.IsSpawned())
                 {
-                    // Found qualifying meal.
-                    MealState meal = state.ItemStateList[state.MealStateIndexList[mealListIndex]] as MealState;
-                    int neededCookTime = Goal.GoalRecipes[goalIndex].Count * MealState.COOK_TIME_PER_INGREDIENT;
-                    int remainingCookTime = Mathf.Max(0, neededCookTime - meal.cookDuration);
-                    minGoalCookTime = Mathf.Min(minGoalCookTime, remainingCookTime);
+                    continue;
+                }
 
-                    // Check if the meal completely matches
-                    if (mealIngredientCounts[mealListIndex, (int)IngredientType.ONION] == goalRecipe[(int)IngredientType.ONION]
-                        && mealIngredientCounts[mealListIndex, (int)IngredientType.MUSHROOM] == goalRecipe[(int)IngredientType.MUSHROOM])
+                int onionCount = mealIngredientCounts[mealListIndex, (int)IngredientType.ONION];
+                int mushroomCount = mealIngredientCounts[mealListIndex, (int)IngredientType.MUSHROOM];
+                if (meal.IsBurnt()
+                    || onionCount > goalRecipe[(int)IngredientType.ONION]
+                    || mushroomCount > goalRecipe[(int)IngredientType.MUSHROOM])
+                {
+                    continue;
+                }
+
+                // Found qualifying meal.
+                bool foundPlate = false;
+
+                // Is there a plate holding this meal...?
+                foreach (int plateID in state.PlateStateIndexList)
+                {
+                    PlateState plate = state.ItemStateList[plateID] as PlateState;
+                    if (plate.mealID != meal.ID)
                     {
-                        // There must be one plate that is holding this meal.
-                        foreach (int plateID in state.PlateStateIndexList)
+                        continue;
+                    }
+
+                    foundPlate = true;
+                    if (plate.IsSubmitted)
+                    {
+                        // Check if the meal completely matches
+                        if (meal.IsCooked()
+                            && onionCount == goalRecipe[(int)IngredientType.ONION]
+                            && mushroomCount == goalRecipe[(int)IngredientType.MUSHROOM])
                         {
-                            PlateState plate = state.ItemStateList[plateID] as PlateState;
-                            if (plate.mealID == meal.ID)
-                            {
-                                submitted = submitted || plate.IsSubmitted;
-                                break;
-                            }
+                            // Good job.
+                            submitted = true;
+                            minGoalCookTime = 0;
+                        }
+                        else
+                        {
+                            // Submitted meal that doesn't match the recipe or is uncooked
+                            // skip.
                         }
                     }
+                    else
+                    {
+                        // Qualifying meal on a plate that hasn't been submitted.
+                        int currentCookDuration = Mathf.Min(meal.cookDuration, meal.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1);
+                        int remainingCookTime = Mathf.Max(0, neededCookTime - currentCookDuration);
+                        minGoalCookTime = Mathf.Min(minGoalCookTime, remainingCookTime);
+                    }
+                    break;
+                }
+
+                if (!foundPlate)
+                {
+                    // Meal is in a pot.
+                    int currentCookDuration = Mathf.Min(meal.cookDuration, meal.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1);
+                    int remainingCookTime = Mathf.Max(0, neededCookTime - currentCookDuration);
+                    minGoalCookTime = Mathf.Min(minGoalCookTime, remainingCookTime);
                 }
             }
 
-            cooktimeHeuristic = Mathf.Max(cooktimeHeuristic, minGoalCookTime);
+            //cooktimeHeuristic = Mathf.Max(cooktimeHeuristic, minGoalCookTime);
+            cooktimeHeuristic += minGoalCookTime;
             submittedHeuristic += submitted ? 0 : 1;
         }
 
-        state.Heuristic = Mathf.Max(ingredientHeuristicSum + submittedHeuristic, cooktimeHeuristic);
+        //state.Heuristic = Mathf.Max(ingredientHeuristicSum + submittedHeuristic, cooktimeHeuristic);
+        //state.Heuristic = ingredientHeuristicSum + submittedHeuristic;
+        float parallelism = Mathf.Min(Goal.GoalRecipes.Count, state.PotStateIndexList.Count);
+        state.Heuristic = ingredientHeuristicSum + (cooktimeHeuristic / parallelism)  + submittedHeuristic;
         return state.Heuristic;
     }
     
