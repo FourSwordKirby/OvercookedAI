@@ -25,7 +25,7 @@ public class Planner {
     public int totalValidActions = 0;
     public System.Diagnostics.Stopwatch Watch = new System.Diagnostics.Stopwatch();
 
-    public Planner(Goal goal, AIState startState, Heuristic h, float epsilon = 1.5f)
+    public Planner(Goal goal, AIState startState, Heuristic h, float epsilon = 2f)
     {
         TargetGoal = goal;
         StartState = startState.Clone() as AIState;
@@ -365,22 +365,25 @@ public class Planner {
                 }
 
                 //Moving meal to a pot
+                transferAction = new TransferAction(Item.NOTHING_ID);
                 foreach (int potID in state.PotStateIndexList)
                 {
-                    transferAction = new TransferAction(potID);
+                    transferAction.id = potID;
                     if (transferAction.isValid(state))
                     {
                         validActions.Add(transferAction);
+                        transferAction = new TransferAction(Item.NOTHING_ID);
                     }
                 }
 
                 //Moving the meal to another plate
                 foreach (int plateID in state.PlateStateIndexList)
                 {
-                    transferAction = new TransferAction(plateID);
+                    transferAction.id = plateID;
                     if (transferAction.isValid(state))
                     {
                         validActions.Add(transferAction);
+                        transferAction = new TransferAction(Item.NOTHING_ID);
                     }
                 }
             }
@@ -413,22 +416,25 @@ public class Planner {
                     }
 
                     //Moving meal to a pot
+                    transferAction = new TransferAction(Item.NOTHING_ID);
                     foreach (int potID in state.PotStateIndexList)
                     {
-                        transferAction = new TransferAction(potID);
+                        transferAction.id = potID;
                         if (transferAction.isValid(state))
                         {
                             validActions.Add(transferAction);
+                            transferAction = new TransferAction(Item.NOTHING_ID);
                         }
                     }
 
                     //Moving the meal to another plate
                     foreach (int plateID in state.PlateStateIndexList)
                     {
-                        transferAction = new TransferAction(plateID);
+                        transferAction.id = plateID;
                         if (transferAction.isValid(state))
                         {
                             validActions.Add(transferAction);
+                            transferAction = new TransferAction(Item.NOTHING_ID);
                         }
                     }
                 }
