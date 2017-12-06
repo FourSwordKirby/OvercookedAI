@@ -1305,10 +1305,6 @@ Prefab:
       propertyPath: m_Name
       value: Pot with Meal (1)
       objectReference: {fileID: 0}
-    - target: {fileID: 1233482034204852, guid: bbfe7428b9dee34478f25943de5aafc5, type: 2}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bbfe7428b9dee34478f25943de5aafc5, type: 2}
   m_IsPrefabParent: 0
