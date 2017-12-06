@@ -92,6 +92,13 @@ public class ItemManager : MonoBehaviour {
 	
 	public AIState GetWorldState()
     {
+        List<int> plateToMeal = new List<int>(PlateIndexList.Count);
+        foreach(int plateID in PlateIndexList)
+        {
+            Plate plate = ItemList[plateID] as Plate;
+            plateToMeal.Add(MealIndexList.IndexOf(plate.HoldingMeal.ID));
+        }
+
         return new AIState()
         {
             ItemStateList = ItemList.Select(item => item.GetState()).ToList(),
@@ -102,6 +109,7 @@ public class ItemManager : MonoBehaviour {
             BoardStateIndexList = BoardIndexList,
             TableStateIndexList = TableIndexList,
             CurrentPlayerState = PlayerObject.GetPlayerState(),
+            PlateToMeal = plateToMeal,
             onionSpawnCount = 0,
             mushroomSpawnCount = 0
         };

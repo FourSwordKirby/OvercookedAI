@@ -33,12 +33,12 @@ public class CookGoal : Goal
 public class FinishedMealGoal : Goal
 {
     public List<List<IngredientType>> GoalRecipes;
-
-    private List<List<int>> IngredientCountsPerRecipe;
-    private const int NUM_INGREDIENT_TYPES = 2;
+    public List<List<int>> IngredientCountsPerRecipe;
 
     public FinishedMealGoal(List<List<IngredientType>> recipes)
     {
+        int NUM_INGREDIENT_TYPES = Enum.GetNames(typeof(IngredientType)).Length;
+
         GoalRecipes = recipes.Select(r => new List<IngredientType>(r)).ToList();
         IngredientCountsPerRecipe = new List<List<int>>();
         foreach (List<IngredientType> recipe in recipes)
@@ -57,6 +57,7 @@ public class FinishedMealGoal : Goal
         // This function needs to be fast...
         // Assumes only Mushrooms and Onions
         bool[] plateUsed = new bool[currentState.PlateStateIndexList.Count];
+        int[,] mealIngredientCounts = currentState.GetMealIngredientCounts();
         foreach (List<int> count in IngredientCountsPerRecipe)
         {
             bool found = false;
@@ -66,23 +67,11 @@ public class FinishedMealGoal : Goal
                 PlateState plate = currentState.ItemStateList[plateID] as PlateState;
                 if (plate.IsSubmitted && !plateUsed[plateIndex])
                 {
-                    MealState meal = currentState.ItemStateList[plate.mealID] as MealState;
-                    int onionCount = 0;
-                    int mushroomCount = 0;
-                    foreach (int ingredientID in meal.ContainedIngredientIDs)
-                    {
-                        IngredientState iState = currentState.ItemStateList[ingredientID] as IngredientState;
-                        if (iState.ingredientType == IngredientType.ONION)
-                        {
-                            ++onionCount;
-                        }
-                        else
-                        {
-                            ++mushroomCount;
-                        }
-                    }
+                    int holdingMealIndex = currentState.PlateToMeal[plateIndex];
+                    int onionCount = mealIngredientCounts[holdingMealIndex, (int)IngredientType.ONION];
+                    int mushroomCount = mealIngredientCounts[holdingMealIndex, (int)IngredientType.MUSHROOM];
 
-                    if(onionCount == count[(int)IngredientType.ONION]
+                    if (onionCount == count[(int)IngredientType.ONION]
                        && mushroomCount == count[(int)IngredientType.MUSHROOM])
                     {
                         found = true;

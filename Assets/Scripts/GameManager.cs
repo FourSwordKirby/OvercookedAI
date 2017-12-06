@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour {
     public ItemManager IM;
     private Planner planner = new Planner();
 
+    public Heuristic CurrentHeuristic;
     public List<AIState> observedStates = new List<AIState>();
 
     public List<Action> currentPlan = new List<Action>();
@@ -176,6 +177,7 @@ public class GameManager : MonoBehaviour {
             };
 
             planner.goal = new FinishedMealGoal(goalRecipes);
+            CurrentHeuristic = new IngredientBasedHeuristic(planner.goal as FinishedMealGoal);
 
             currentPlan = planner.Search(CurrentState);
             currentPlanIndex = 0;
@@ -266,5 +268,6 @@ public class GameManager : MonoBehaviour {
         CurrentState = a.ApplyAction(CurrentState);
         IM.LoadWorldState(CurrentState);
         Debug.Log("Action applied. History size: " + observedStates.Count);
+        Debug.Log("Current state has heuristic: " + CurrentHeuristic.GetHeuristic(CurrentState));
     }
 }

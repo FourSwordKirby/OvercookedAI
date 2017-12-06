@@ -15,9 +15,11 @@ public class AIState : ICloneable
     public List<int> MealStateIndexList;
     public List<int> BoardStateIndexList;
     public List<int> TableStateIndexList;
+    public List<int> PlateToMeal;
 
     public PlayerState CurrentPlayerState;
 
+    public const int NUM_INGREDIENT_TYPES = 2;
     public const int MAX_INGREDIENT_TYPE_SPAWN = 5;
     public const int MAX_MEAL_SPAWN = 5;
 
@@ -29,12 +31,17 @@ public class AIState : ICloneable
     public AIState Parent;
     public Action ParentAction;
 
+    // Cached values. Do not copy on clone.
+    public float Heuristic;
+    public int[,] MealIngredientCounts;
+
     public AIState()
     {
         GValue = int.MaxValue;
         IsClosed = false;
         Parent = null;
         ParentAction = null;
+        Heuristic = -1f;
     }
 
     public object Clone()
@@ -50,8 +57,29 @@ public class AIState : ICloneable
             TableStateIndexList = this.TableStateIndexList,
             CurrentPlayerState = this.CurrentPlayerState.Clone() as PlayerState,
             onionSpawnCount = this.onionSpawnCount,
-            mushroomSpawnCount = this.mushroomSpawnCount
+            mushroomSpawnCount = this.mushroomSpawnCount,
+            PlateToMeal = this.PlateToMeal
         };
+    }
+
+    public int[,] GetMealIngredientCounts()
+    {
+        if (MealIngredientCounts != null)
+        {
+            return MealIngredientCounts;
+        }
+
+        MealIngredientCounts = new int[MealStateIndexList.Count, NUM_INGREDIENT_TYPES];
+        for (int i = 0; i < MealStateIndexList.Count; ++i)
+        {
+            MealState meal = ItemStateList[MealStateIndexList[i]] as MealState;
+            foreach (int ingID in meal.ContainedIngredientIDs)
+            {
+                IngredientState ingredient = ItemStateList[ingID] as IngredientState;
+                ++MealIngredientCounts[i, (int)ingredient.ingredientType];
+            }
+        }
+        return MealIngredientCounts;
     }
 }
 
