@@ -15,9 +15,9 @@ public class Planner {
     public List<Action> Search(AIState startState)
     {
         int cost = 1;
-        float epsilon = 1.0f;
+        float epsilon = 10.0f;
         int numStatesClosed = 0;
-        Heuristic h = new DumbHeuristic();
+        Heuristic h = new IngredientBasedHeuristic(goal as FinishedMealGoal);
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         Dictionary<AIState, AIState> allStates = new Dictionary<AIState, AIState>(new AIStateComparator());
 
@@ -26,7 +26,7 @@ public class Planner {
         startState.IsClosed = false;
         openStates.Enqueue(startState, 0);
         
-        Debug.Log("Starting search, current goal is: " + goal);
+        Debug.Log("Starting search, current goal is: " + goal + ", heuristic is: " + h);
         stopwatch.Start();
         while(openStates.Count > 0)
         {

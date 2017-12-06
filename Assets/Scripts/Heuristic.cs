@@ -56,9 +56,16 @@ public class IngredientBasedHeuristic : Heuristic
             return state.Heuristic;
         }
 
-        for (int i = 0; i < HeuristicPerIngredient.Count; ++i)
+        if (HeuristicPerIngredient == null)
         {
-            HeuristicPerIngredient[i].Clear();
+            Init(state);
+        }
+        else
+        {
+            for (int i = 0; i < HeuristicPerIngredient.Count; ++i)
+            {
+                HeuristicPerIngredient[i].Clear();
+            }
         }
 
         foreach (int ingredientID in state.IngredientStateIndexList)
@@ -79,30 +86,44 @@ public class IngredientBasedHeuristic : Heuristic
         int[,] mealIngredientCounts = state.GetMealIngredientCounts();
         for (int goalIndex = 0; goalIndex < Goal.GoalRecipes.Count; ++goalIndex)
         {
+            bool foundGoal = false;
+            int minGoalCookTime = 1000000;
+            bool submitted = false;
             List<int> goalRecipe = Goal.IngredientCountsPerRecipe[goalIndex];
             for (int mealListIndex = 0; mealListIndex < state.MealStateIndexList.Count; ++mealListIndex)
             {
-                if (goalRecipe[(int)IngredientType.ONION] == mealIngredientCounts[mealListIndex, (int)IngredientType.ONION]
-                    && goalRecipe[(int)IngredientType.MUSHROOM] == mealIngredientCounts[mealListIndex, (int)IngredientType.MUSHROOM])
+                if (mealIngredientCounts[mealListIndex, (int)IngredientType.ONION] <= goalRecipe[(int)IngredientType.ONION]
+                    && mealIngredientCounts[mealListIndex, (int)IngredientType.MUSHROOM] <= goalRecipe[(int)IngredientType.MUSHROOM])
                 {
+                    // Found qualifying meal.
                     MealState meal = state.ItemStateList[state.MealStateIndexList[mealListIndex]] as MealState;
                     int neededCookTime = Goal.GoalRecipes[goalIndex].Count * MealState.COOK_TIME_PER_INGREDIENT;
-                    int remainingCookTime = Mathf.Max(0, neededCookTime = meal.cookDuration);
-                    cooktimeHeuristic = Mathf.Max(cooktimeHeuristic, remainingCookTime);
+                    int remainingCookTime = Mathf.Max(0, neededCookTime - meal.cookDuration);
+                    minGoalCookTime = Mathf.Min(minGoalCookTime, remainingCookTime);
 
-                    foreach (int plateID in state.PlateStateIndexList)
+                    // Check if the meal completely matches
+                    if (mealIngredientCounts[mealListIndex, (int)IngredientType.ONION] == goalRecipe[(int)IngredientType.ONION]
+                        && mealIngredientCounts[mealListIndex, (int)IngredientType.MUSHROOM] == goalRecipe[(int)IngredientType.MUSHROOM])
                     {
-                        PlateState plate = state.ItemStateList[plateID] as PlateState;
-                        if (plate.mealID == meal.ID)
+                        // There must be one plate that is holding this meal.
+                        foreach (int plateID in state.PlateStateIndexList)
                         {
-                            submittedHeuristic += plate.IsSubmitted ? 0 : 1;
+                            PlateState plate = state.ItemStateList[plateID] as PlateState;
+                            if (plate.mealID == meal.ID)
+                            {
+                                submitted = submitted || plate.IsSubmitted;
+                                break;
+                            }
                         }
                     }
                 }
             }
+
+            cooktimeHeuristic = Mathf.Max(cooktimeHeuristic, minGoalCookTime);
+            submittedHeuristic += submitted ? 0 : 1;
         }
 
-        state.Heuristic = ingredientHeuristicSum + cooktimeHeuristic + submittedHeuristic;
+        state.Heuristic = Mathf.Max(ingredientHeuristicSum + submittedHeuristic, cooktimeHeuristic);
         return state.Heuristic;
     }
     
@@ -125,7 +146,12 @@ public class IngredientBasedHeuristic : Heuristic
 
         return 0;
     }
-    
+
+    public override string ToString()
+    {
+        return "IngredientBasedHeuristic(" + Goal + ")";
+    }
+
 }
 
 public class DumbHeuristic : Heuristic
@@ -152,6 +178,11 @@ public class DumbHeuristic : Heuristic
 
         //Debug.Log("Implement a heuristic here");
         return h * epsilon;
+    }
+
+    public override string ToString()
+    {
+        return "DumbHeuristic";
     }
 }
 
