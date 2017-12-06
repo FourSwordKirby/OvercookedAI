@@ -163,8 +163,11 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public OrderTrackerUI orderTracker;
     // Update is called once per frame
     void Update () {
+        orderTracker.updateRecipes(goalRecipes);
+
         if(Input.GetKeyDown(KeyCode.Space))
         {
             BeginSearch();
@@ -282,5 +285,21 @@ public class GameManager : MonoBehaviour {
         currentPlanIndex = 0;
 
         Debug.Log(currentPlan.Count);
+    }
+
+    List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
+        {
+            new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM}
+            //, new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM  }
+        };
+
+    public void AddOnionSoupOrder()
+    {
+        goalRecipes.Add(new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.ONION });
+    }
+
+    public void AddMushroomSoupOrder()
+    {
+        goalRecipes.Add(new List<IngredientType>() { IngredientType.MUSHROOM, IngredientType.MUSHROOM, IngredientType.MUSHROOM });
     }
 }
