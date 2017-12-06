@@ -8,7 +8,7 @@ public class MealState : ItemState {
     public List<int> ContainedIngredientIDs;
     public int cookDuration = 0;
 
-    public const int COOK_TIME_PER_INGREDIENT = 3;
+    public const int COOK_TIME_PER_INGREDIENT = 6;
 
     public MealState(int id, int time, List<int> containingItemIDs)
         : base(id, ItemType.MEAL)
