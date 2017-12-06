@@ -236,6 +236,21 @@ public class GameManager : MonoBehaviour {
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            SetPlanner();
+        }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            Expand10K();
+        }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            SearchToCompletion();
+        }
+
         // Choose highlighted item
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
@@ -307,16 +322,52 @@ public class GameManager : MonoBehaviour {
         CurrentState = IM.GetWorldState();
         //planner.goal = new CookGoal();
 
-        planner = new Planner();
-        planner.goal = CurrentGoal;
-
-        currentPlan = planner.Search(CurrentState);
+        planner = new Planner(CurrentGoal, CurrentState, CurrentHeuristic, 10f);
+        planner.SearchToCompletion();
+        currentPlan = planner.Plan;
         currentPlanIndex = 0;
 
         //Clear out the observed states from the current time onwards
         observedStates.RemoveRange(currentTime, observedStates.Count - currentTime - 1);
 
-        Debug.Log(currentPlan.Count);
+        Debug.Log("Planner returned plan of length " + currentPlan.Count);
+    }
+
+    public void SetPlanner()
+    {
+        CurrentState = IM.GetWorldState();
+        planner = new Planner(CurrentGoal, CurrentState, CurrentHeuristic, 10f);
+        Debug.Log("Planner set.");
+    }
+
+    public void Expand10K()
+    {
+        planner.SearchLimited(10000);
+        if(planner.IsFinished)
+        {
+            currentPlan = planner.Plan;
+            currentPlanIndex = 0;
+
+            //Clear out the observed states from the current time onwards
+            observedStates.RemoveRange(currentTime, observedStates.Count - currentTime - 1);
+
+            Debug.Log("Planner returned plan of length " + currentPlan.Count);
+        }
+    }
+
+    public void SearchToCompletion()
+    {
+        planner.SearchToCompletion();
+        if (planner.IsFinished)
+        {
+            currentPlan = planner.Plan;
+            currentPlanIndex = 0;
+
+            //Clear out the observed states from the current time onwards
+            observedStates.RemoveRange(currentTime, observedStates.Count - currentTime - 1);
+
+            Debug.Log("Planner returned plan of length " + currentPlan.Count);
+        }
     }
 
     List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()

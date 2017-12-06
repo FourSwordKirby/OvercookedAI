@@ -86,7 +86,6 @@ public class IngredientBasedHeuristic : Heuristic
         int[,] mealIngredientCounts = state.GetMealIngredientCounts();
         for (int goalIndex = 0; goalIndex < Goal.GoalRecipes.Count; ++goalIndex)
         {
-            bool foundGoal = false;
             int minGoalCookTime = 1000000;
             bool submitted = false;
             List<int> goalRecipe = Goal.IngredientCountsPerRecipe[goalIndex];

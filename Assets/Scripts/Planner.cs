@@ -7,92 +7,180 @@ using System.Linq;
 
 public class Planner {
 
+
     /// <summary>
     /// The current goal of the planner, it is allowed to change during the course of the game?
     /// </summary>
-    public Goal goal;
+    public Goal TargetGoal;
+    public AIState StartState;
+    public Heuristic HeuristicStrategy;
+    public float Epsilon = 10.0f;
+    public int Cost = 1;
+    public List<Action> Plan;
 
-    public List<Action> Search(AIState startState)
+    public bool IsFinished = false;
+    public int NumberClosedStates = 0;
+    public PriorityQueue<AIState> OpenSet = new PriorityQueue<AIState>();
+    public Dictionary<AIState, AIState> AllStates = new Dictionary<AIState, AIState>(new AIStateComparator());
+    public System.Diagnostics.Stopwatch Watch = new System.Diagnostics.Stopwatch();
+
+    public Planner(Goal goal, AIState startState, Heuristic h, float epsilon)
     {
-        int cost = 1;
-        float epsilon = 10.0f;
-        int numStatesClosed = 0;
-        Heuristic h = new IngredientBasedHeuristic(goal as FinishedMealGoal);
-        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
-        Dictionary<AIState, AIState> allStates = new Dictionary<AIState, AIState>(new AIStateComparator());
+        TargetGoal = goal;
+        StartState = startState.Clone() as AIState;
+        HeuristicStrategy = h;
+        Epsilon = epsilon;
 
-        PriorityQueue<AIState> openStates = new PriorityQueue<AIState>();
-        startState.GValue = 0;
-        startState.IsClosed = false;
-        openStates.Enqueue(startState, 0);
-        
-        Debug.Log("Starting search, current goal is: " + goal + ", heuristic is: " + h);
-        stopwatch.Start();
-        while(openStates.Count > 0)
+        StartState.GValue = 0;
+        StartState.IsClosed = false;
+        AllStates[StartState] = StartState;
+        OpenSet.Enqueue(StartState, 0);
+    }
+
+    public bool ExpandState(AIState currentState)
+    {
+        currentState.IsClosed = true;
+        ++NumberClosedStates;
+
+        if (TargetGoal.IsGoal(currentState))
         {
-            AIState currentState = openStates.Dequeue().Value;
+            return true;
+        }
+
+        List<Action> validActions = GetValidActions(currentState);
+        foreach (Action action in validActions)
+        {
+            AIState newState = action.ApplyAction(currentState);
+
+            // If we have already seen this state, then pull out the existing reference to it.
+            if (AllStates.ContainsKey(newState))
+            {
+                newState = AllStates[newState];
+                if (newState.IsClosed)
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                AllStates[newState] = newState;
+            }
+
+            // Only insert into open list if the g-value is smaller
+            int tentativeGValue = currentState.GValue + Cost;
+            if (tentativeGValue < newState.GValue)
+            {
+                newState.GValue = tentativeGValue;
+                newState.Parent = currentState;
+                newState.ParentAction = action;
+
+                float fValue = tentativeGValue + Epsilon * HeuristicStrategy.GetHeuristic(newState);
+                OpenSet.Enqueue(newState, fValue);
+            }
+        }
+
+        return false;
+    }
+
+    public void SearchToCompletion()
+    {
+        if (IsFinished)
+        {
+            Debug.LogWarning("Search has already completed. Create a new Planner to search a second time.");
+            return;
+        }
+
+        Debug.Log("Searching to completion, current goal is: " + TargetGoal + ", heuristic is: " + HeuristicStrategy);
+        Watch.Start();
+        while(OpenSet.Count > 0)
+        {
+            AIState currentState = OpenSet.Dequeue().Value;
             if(currentState.IsClosed)
             {
                 continue;
             }
 
-            currentState.IsClosed = true;
-            ++numStatesClosed;
-
-            if (goal.IsGoal(currentState))
+            bool done = ExpandState(currentState);
+            if (done)
             {
-                stopwatch.Stop();
+                Watch.Stop();
                 // Backtrack
                 List<Action> plan = new List<Action>();
-                while(currentState != startState)
+                while (currentState != StartState)
                 {
                     plan.Add(currentState.ParentAction);
                     currentState = currentState.Parent;
                 }
 
                 plan.Reverse();
+                Plan = plan;
+                IsFinished = true;
                 Debug.Log("Plan of size " + plan.Count + " found.");
-                Debug.Log("Search completed in: " + (stopwatch.ElapsedMilliseconds / 1000f) + " sec");
-                Debug.Log("Closed set: " + numStatesClosed + " | Open set:" + (allStates.Count - numStatesClosed));
-                return plan;
+                Debug.Log("Search completed in: " + (Watch.ElapsedMilliseconds / 1000f) + " sec");
+                Debug.Log("Closed set: " + NumberClosedStates + " | Open set:" + (AllStates.Count - NumberClosedStates));
+                return;
+            }
+        }
+        
+        Debug.LogError("Plan not found");
+        Debug.Log("Search completed in: " + (Watch.ElapsedMilliseconds / 1000f) + " sec");
+        Debug.Log("Closed set: " + NumberClosedStates + " | Open set:" + (AllStates.Count - NumberClosedStates));
+        return;
+    }
+
+    public void SearchLimited(int maxExpansion)
+    {
+        if (IsFinished)
+        {
+            Debug.LogWarning("Search has already completed. Create a new Planner to search a second time.");
+            return;
+        }
+
+        Debug.Log("Expanding up to " + maxExpansion + " states... current goal is: " + TargetGoal + ", heuristic is: " + HeuristicStrategy);
+        System.Diagnostics.Stopwatch methodWatch = new System.Diagnostics.Stopwatch();
+        int currentExpansions = 0;
+
+        methodWatch.Start();
+        Watch.Start();
+        while (OpenSet.Count > 0 && currentExpansions < maxExpansion)
+        {
+            AIState currentState = OpenSet.Dequeue().Value;
+            if (currentState.IsClosed)
+            {
+                continue;
             }
 
-            List<Action> validActions = GetValidActions(currentState);
-            foreach(Action action in validActions)
+            bool done = ExpandState(currentState);
+            ++currentExpansions;
+            if (done)
             {
-                AIState newState = action.ApplyAction(currentState);
+                methodWatch.Stop();
+                Watch.Stop();
+                Debug.Log("Goal expanded after " + currentExpansions + " states were expanded.");
 
-                // If we have already seen this state, then pull out the existing reference to it.
-                if (allStates.ContainsKey(newState))
+                // Backtrack
+                List<Action> plan = new List<Action>();
+                while (currentState != StartState)
                 {
-                    newState = allStates[newState];
-                    if (newState.IsClosed)
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    allStates[newState] = newState;
+                    plan.Add(currentState.ParentAction);
+                    currentState = currentState.Parent;
                 }
 
-                // Only insert into open list if the g-value is smaller
-                int tentativeGValue = currentState.GValue + cost;
-                if (tentativeGValue < newState.GValue)
-                {
-                    newState.GValue = tentativeGValue;
-                    newState.Parent = currentState;
-                    newState.ParentAction = action;
-
-                    float fValue = tentativeGValue + epsilon * h.GetHeuristic(newState);
-                    openStates.Enqueue(newState,  fValue);
-                }
+                plan.Reverse();
+                Plan = plan;
+                IsFinished = true;
+                Debug.Log("Plan of size " + plan.Count + " found.");
+                Debug.Log("Method completed in: " + (methodWatch.ElapsedMilliseconds / 1000f) + " sec");
+                Debug.Log("Full Search completed in: " + (Watch.ElapsedMilliseconds / 1000f) + " sec");
+                Debug.Log("Closed set: " + NumberClosedStates + " | Open set:" + (AllStates.Count - NumberClosedStates));
+                return;
             }
         }
 
-
-        Debug.Log("Plan not found");
-        return null;
+        Debug.Log(maxExpansion + " expansions completed in " + (methodWatch.ElapsedMilliseconds / 1000f) + " sec");
+        Debug.Log("Current total search time: " + (Watch.ElapsedMilliseconds / 1000f) + " sec");
+        Debug.Log("Closed set: " + NumberClosedStates + " | Open set:" + (AllStates.Count - NumberClosedStates));
+        return;
     }
 
     /// <summary>
