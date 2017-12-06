@@ -13,17 +13,23 @@ public class OrderUI : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if(ingredientIcons.Count != ingredients.Count || ingredients.Count != 3)
+        if(ingredients.Count > 3)
         {
-            throw new System.Exception("All orders must be of size 3");
+            throw new System.Exception("All orders must be < size 3");
         }
 
-		for(int i = 0; i < ingredients.Count; i++)
+		for(int i = 0; i < 3; i++)
         {
-            if (ingredients[i] == IngredientType.MUSHROOM)
-                ingredientIcons[i].sprite = mushroomSprite;
+            if (i < ingredients.Count)
+            {
+                ingredientIcons[i].gameObject.SetActive(true);
+                if (ingredients[i] == IngredientType.MUSHROOM)
+                    ingredientIcons[i].sprite = mushroomSprite;
+                else
+                    ingredientIcons[i].sprite = onionSprite;
+            }
             else
-                ingredientIcons[i].sprite = onionSprite;
+                ingredientIcons[i].gameObject.SetActive(false);
         }
     }
 }

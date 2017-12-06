@@ -164,9 +164,35 @@ public class GameManager : MonoBehaviour {
     }
 
     public OrderTrackerUI orderTracker;
+
+    private bool playAutomatically;
+    private float timeStep = 1.0f;
+    private float counter = 0.0f;
+
     // Update is called once per frame
     void Update () {
         orderTracker.updateRecipes(goalRecipes);
+
+        if(playAutomatically)
+        {
+            //Potentially do something with new recipes getting added in an replanning
+            counter += Time.deltaTime;
+            if(counter > timeStep)
+            {
+                counter = 0.0f;
+
+                currentTime++;
+                if (currentPlanIndex < currentPlan.Count)
+                {
+                    ApplyAction(currentPlan[currentPlanIndex]);
+                    currentPlanIndex++;
+                    observedStates.Add(CurrentState);
+                }
+                else
+                    playAutomatically = false;
+            }
+            return;
+        }
 
         if(Input.GetKeyDown(KeyCode.Space))
         {
@@ -202,7 +228,6 @@ public class GameManager : MonoBehaviour {
                 IM.LoadWorldState(observedStates[currentTime]);
             }
         }
-
 
         // Choose highlighted item
         if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -273,23 +298,21 @@ public class GameManager : MonoBehaviour {
         CurrentState = IM.GetWorldState();
         //planner.goal = new CookGoal();
 
-        List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
-            {
-                new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM }
-                //, new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM  }
-            };
-
         planner.goal = new FinishedMealGoal(goalRecipes);
 
         currentPlan = planner.Search(CurrentState);
         currentPlanIndex = 0;
+
+        //Clear out the observed states from the current time onwards
+        observedStates.RemoveRange(currentTime, observedStates.Count - currentTime - 1);
 
         Debug.Log(currentPlan.Count);
     }
 
     List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
         {
-            new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM}
+            //new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM}
+            new List<IngredientType>() { IngredientType.ONION}
             //, new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM  }
         };
 
@@ -301,5 +324,16 @@ public class GameManager : MonoBehaviour {
     public void AddMushroomSoupOrder()
     {
         goalRecipes.Add(new List<IngredientType>() { IngredientType.MUSHROOM, IngredientType.MUSHROOM, IngredientType.MUSHROOM });
+    }
+
+    public void Autoplay()
+    {
+        BeginSearch();
+        playAutomatically = true;
+    }
+
+    public void StopAutoplay()
+    {
+        playAutomatically = false;
     }
 }
