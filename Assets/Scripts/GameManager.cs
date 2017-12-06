@@ -167,21 +167,7 @@ public class GameManager : MonoBehaviour {
     void Update () {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            CurrentState = IM.GetWorldState();
-            //planner.goal = new CookGoal();
-
-            List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
-            {
-                new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM }
-                //, new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM  }
-            };
-
-            planner.goal = new FinishedMealGoal(goalRecipes);
-
-            currentPlan = planner.Search(CurrentState);
-            currentPlanIndex = 0;
-
-            Debug.Log(currentPlan.Count);
+            BeginSearch();
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -282,7 +268,15 @@ public class GameManager : MonoBehaviour {
     public void BeginSearch()
     {
         CurrentState = IM.GetWorldState();
-        planner.goal = new FinishedMealGoal();
+        //planner.goal = new CookGoal();
+
+        List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
+            {
+                new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM }
+                //, new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM  }
+            };
+
+        planner.goal = new FinishedMealGoal(goalRecipes);
 
         currentPlan = planner.Search(CurrentState);
         currentPlanIndex = 0;
