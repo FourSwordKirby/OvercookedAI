@@ -51,12 +51,12 @@ public class MealState : ItemState {
 
     public float CurrentCookingProgress()
     {
-        return Mathf.Max(0, (float)(cookDuration-1) / (float)(ContainedIngredientIDs.Count * COOK_TIME_PER_INGREDIENT));
+        return Mathf.Max(0, (float)(cookDuration) / (float)(ContainedIngredientIDs.Count * COOK_TIME_PER_INGREDIENT));
     }
 
     public float CurrentBurningProgress()
     {
-        return Mathf.Max(0, (float)(cookDuration - 1 - ContainedIngredientIDs.Count * COOK_TIME_PER_INGREDIENT) / (float)(2 * COOK_TIME_PER_INGREDIENT));
+        return Mathf.Max(0, (float)(cookDuration - ContainedIngredientIDs.Count * COOK_TIME_PER_INGREDIENT) / (float)(2 * COOK_TIME_PER_INGREDIENT));
     }
 
 

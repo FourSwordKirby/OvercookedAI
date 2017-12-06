@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour {
     {
         yield return new WaitForFixedUpdate();
         CurrentState = IM.GetWorldState();
+        observedStates.Add(CurrentState);
         HighlightedIndex = 0;
         NextHighlight();
     }
@@ -266,5 +267,26 @@ public class GameManager : MonoBehaviour {
         CurrentState = a.ApplyAction(CurrentState);
         IM.LoadWorldState(CurrentState);
         Debug.Log("Action applied. History size: " + observedStates.Count);
+    }
+
+    //Used by the buttons
+    public void ResetWorld()
+    {
+        CurrentState = observedStates[0];
+        IM.LoadWorldState(CurrentState);
+        currentTime = 0;
+        observedStates.Clear();
+        currentPlan.Clear();
+    }
+
+    public void BeginSearch()
+    {
+        CurrentState = IM.GetWorldState();
+        planner.goal = new FinishedMealGoal();
+
+        currentPlan = planner.Search(CurrentState);
+        currentPlanIndex = 0;
+
+        Debug.Log(currentPlan.Count);
     }
 }
