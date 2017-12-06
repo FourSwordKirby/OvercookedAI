@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviour {
     {
         yield return new WaitForFixedUpdate();
         CurrentState = IM.GetWorldState();
+        observedStates.Add(CurrentState);
         HighlightedIndex = 0;
         NextHighlight();
     }
@@ -163,26 +164,40 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public OrderTrackerUI orderTracker;
+
+    private bool playAutomatically;
+    private float timeStep = 1.0f;
+    private float counter = 0.0f;
+
     // Update is called once per frame
     void Update () {
+        orderTracker.updateRecipes(goalRecipes);
+
+        if(playAutomatically)
+        {
+            //Potentially do something with new recipes getting added in an replanning
+            counter += Time.deltaTime;
+            if(counter > timeStep)
+            {
+                counter = 0.0f;
+
+                currentTime++;
+                if (currentPlanIndex < currentPlan.Count)
+                {
+                    ApplyAction(currentPlan[currentPlanIndex]);
+                    currentPlanIndex++;
+                    observedStates.Add(CurrentState);
+                }
+                else
+                    playAutomatically = false;
+            }
+            return;
+        }
+
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            CurrentState = IM.GetWorldState();
-            //planner.goal = new CookGoal();
-
-            List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
-            {
-                new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM }
-                //, new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM  }
-            };
-
-            planner.goal = new FinishedMealGoal(goalRecipes);
-            CurrentHeuristic = new IngredientBasedHeuristic(planner.goal as FinishedMealGoal);
-
-            currentPlan = planner.Search(CurrentState);
-            currentPlanIndex = 0;
-
-            Debug.Log(currentPlan.Count);
+            BeginSearch();
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -214,7 +229,6 @@ public class GameManager : MonoBehaviour {
                 IM.LoadWorldState(observedStates[currentTime]);
             }
         }
-
 
         // Choose highlighted item
         if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -269,5 +283,59 @@ public class GameManager : MonoBehaviour {
         IM.LoadWorldState(CurrentState);
         Debug.Log("Action applied. History size: " + observedStates.Count);
         Debug.Log("Current state has heuristic: " + CurrentHeuristic.GetHeuristic(CurrentState));
+    }
+
+    //Used by the buttons
+    public void ResetWorld()
+    {
+        CurrentState = observedStates[0];
+        IM.LoadWorldState(CurrentState);
+        currentTime = 0;
+        observedStates.Clear();
+        currentPlan.Clear();
+    }
+
+    public void BeginSearch()
+    {
+        CurrentState = IM.GetWorldState();
+        //planner.goal = new CookGoal();
+
+        planner.goal = new FinishedMealGoal(goalRecipes);
+
+        currentPlan = planner.Search(CurrentState);
+        currentPlanIndex = 0;
+
+        //Clear out the observed states from the current time onwards
+        observedStates.RemoveRange(currentTime, observedStates.Count - currentTime - 1);
+
+        Debug.Log(currentPlan.Count);
+    }
+
+    List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
+        {
+            //new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM}
+            new List<IngredientType>() { IngredientType.ONION}
+            //, new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM  }
+        };
+
+    public void AddOnionSoupOrder()
+    {
+        goalRecipes.Add(new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.ONION });
+    }
+
+    public void AddMushroomSoupOrder()
+    {
+        goalRecipes.Add(new List<IngredientType>() { IngredientType.MUSHROOM, IngredientType.MUSHROOM, IngredientType.MUSHROOM });
+    }
+
+    public void Autoplay()
+    {
+        BeginSearch();
+        playAutomatically = true;
+    }
+
+    public void StopAutoplay()
+    {
+        playAutomatically = false;
     }
 }

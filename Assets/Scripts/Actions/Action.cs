@@ -330,10 +330,14 @@ public class TransferAction : AdvanceTimeAction
 
             int cookDuration = 0;
             if(meal2.IsSpawned())
-                cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT)
-                                    + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT) + 1;
+                cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT+1)
+                                    + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT+1);
             else
                 cookDuration = meal1.cookDuration;
+
+            if (meal1.IsCooked() && meal2.IsCooked())
+                cookDuration--;
+
 
             meal2.cookDuration = cookDuration;
 
@@ -350,10 +354,14 @@ public class TransferAction : AdvanceTimeAction
 
             int cookDuration = 0;
             if (meal2.IsSpawned())
-                cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT)
-                                    + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT) + 1;
+                cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1)
+                                    + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT + 1);
             else
                 cookDuration = meal1.cookDuration;
+
+            if (meal1.IsCooked() && meal2.IsCooked())
+                cookDuration--;
+
 
             meal2.cookDuration = cookDuration;
 

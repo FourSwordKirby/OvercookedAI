@@ -61,3 +61,4 @@ MonoBehaviour:
   HighlightPrefab: {fileID: 1266299671116038, guid: ec00a4f29620c264cb034a2a93dc0a35,
     type: 2}
   HighlightedIndex: 0
+  orderTracker: {fileID: 0}
