@@ -328,9 +328,15 @@ public class TransferAction : AdvanceTimeAction
             PotState pot = cloneState.ItemStateList[id] as PotState;
             MealState meal2 = cloneState.ItemStateList[pot.mealID] as MealState;
 
-            int cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT)
-                                + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT) + 1; 
+            int cookDuration = 0;
+            if(meal2.IsSpawned())
+                cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT)
+                                    + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT) + 1;
+            else
+                cookDuration = meal1.cookDuration;
+
             meal2.cookDuration = cookDuration;
+
 
             meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
 
@@ -342,8 +348,13 @@ public class TransferAction : AdvanceTimeAction
             PlateState plate = cloneState.ItemStateList[id] as PlateState;
             MealState meal2 = cloneState.ItemStateList[plate.mealID] as MealState;
 
-            int cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT)
-                                + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT) + 1;
+            int cookDuration = 0;
+            if (meal2.IsSpawned())
+                cookDuration = Mathf.Min(meal1.cookDuration, meal1.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT)
+                                    + Mathf.Min(meal2.cookDuration, meal2.ContainedIngredientIDs.Count * MealState.COOK_TIME_PER_INGREDIENT) + 1;
+            else
+                cookDuration = meal1.cookDuration;
+
             meal2.cookDuration = cookDuration;
 
             meal2.ContainedIngredientIDs.AddRange(meal1.ContainedIngredientIDs);
