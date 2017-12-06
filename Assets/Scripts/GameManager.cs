@@ -168,7 +168,14 @@ public class GameManager : MonoBehaviour {
         {
             CurrentState = IM.GetWorldState();
             //planner.goal = new CookGoal();
-            planner.goal = new FinishedMealGoal();
+
+            List<List<IngredientType>> goalRecipes = new List<List<IngredientType>>()
+            {
+                new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM }
+                //, new List<IngredientType>() { IngredientType.ONION, IngredientType.ONION, IngredientType.MUSHROOM  }
+            };
+
+            planner.goal = new FinishedMealGoal(goalRecipes);
 
             currentPlan = planner.Search(CurrentState);
             currentPlanIndex = 0;

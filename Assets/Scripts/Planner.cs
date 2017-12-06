@@ -16,14 +16,18 @@ public class Planner {
     {
         int cost = 1;
         float epsilon = 1.0f;
-
+        int numStatesClosed = 0;
+        Heuristic h = new DumbHeuristic();
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         Dictionary<AIState, AIState> allStates = new Dictionary<AIState, AIState>(new AIStateComparator());
 
         PriorityQueue<AIState> openStates = new PriorityQueue<AIState>();
         startState.GValue = 0;
         startState.IsClosed = false;
         openStates.Enqueue(startState, 0);
-
+        
+        Debug.Log("Starting search, current goal is: " + goal);
+        stopwatch.Start();
         while(openStates.Count > 0)
         {
             AIState currentState = openStates.Dequeue().Value;
@@ -33,9 +37,11 @@ public class Planner {
             }
 
             currentState.IsClosed = true;
+            ++numStatesClosed;
 
             if (goal.IsGoal(currentState))
             {
+                stopwatch.Stop();
                 // Backtrack
                 List<Action> plan = new List<Action>();
                 while(currentState != startState)
@@ -45,7 +51,9 @@ public class Planner {
                 }
 
                 plan.Reverse();
-                Debug.Log("Plan found");
+                Debug.Log("Plan of size " + plan.Count + " found.");
+                Debug.Log("Search completed in: " + (stopwatch.ElapsedMilliseconds / 1000f) + " sec");
+                Debug.Log("Closed set: " + numStatesClosed + " | Open set:" + (allStates.Count - numStatesClosed));
                 return plan;
             }
 
@@ -76,7 +84,7 @@ public class Planner {
                     newState.Parent = currentState;
                     newState.ParentAction = action;
 
-                    float fValue = tentativeGValue + epsilon * Heuristic(newState);
+                    float fValue = tentativeGValue + epsilon * h.GetHeuristic(newState);
                     openStates.Enqueue(newState,  fValue);
                 }
             }
@@ -325,32 +333,5 @@ public class Planner {
 
         return validActions;
     }
-
-    /// <summary>
-    /// Returns a heuristic for the distance of the current game state to the goal
-    /// </summary>
-    /// <returns></returns>
-    public float Heuristic(AIState state)
-    {
-        int h = 0;
-        float epsilon = 2.0f;
-
-
-        foreach (int ingredientID in state.IngredientStateIndexList)
-        {
-            IngredientState ingredient = (state.ItemStateList[ingredientID] as IngredientState);
-            if (ingredient.ingredientType == IngredientType.ONION)
-            {
-                if (!ingredient.IsSpawned)
-                    h += 1;
-                if (!ingredient.IsPrepared)
-                    h += 1;
-                if (!ingredient.IsInMeal)
-                    h += 1;
-            }
-        }
-
-        //Debug.Log("Implement a heuristic here");
-        return h * epsilon;
-    }
+    
 }

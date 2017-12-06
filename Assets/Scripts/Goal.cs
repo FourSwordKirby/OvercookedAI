@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public interface Goal
 {
@@ -31,45 +32,78 @@ public class CookGoal : Goal
 
 public class FinishedMealGoal : Goal
 {
+    public List<List<IngredientType>> GoalRecipes;
+
+    private List<List<int>> IngredientCountsPerRecipe;
+    private const int NUM_INGREDIENT_TYPES = 2;
+
+    public FinishedMealGoal(List<List<IngredientType>> recipes)
+    {
+        GoalRecipes = recipes;
+        IngredientCountsPerRecipe = new List<List<int>>();
+        foreach (List<IngredientType> recipe in recipes)
+        {
+            List<int> counts = new List<int>(NUM_INGREDIENT_TYPES);
+            for (int i = 0; i < NUM_INGREDIENT_TYPES; ++i)
+            {
+                counts.Add(recipe.Count(ingredientType =>  ingredientType == (IngredientType)i));
+            }
+            IngredientCountsPerRecipe.Add(counts);
+        }
+    }
+
     public bool IsGoal(AIState currentState)
     {
-        //foreach (int mealID in currentState.MealStateIndexList)
-        //{
-        //    MealState meal = currentState.ItemStateList[mealID] as MealState;
-        //    if (meal.IsCooked())
-        //    {
-        //        foreach (int ingredientID in meal.ContainedIngredientIDs)
-        //        {
-        //            if ((currentState.ItemStateList[ingredientID] as IngredientState).ingredientType == IngredientType.ONION)
-        //                onionCount--;
-        //            if ((currentState.ItemStateList[ingredientID] as IngredientState).ingredientType == IngredientType.MUSHROOM)
-        //                mushroomCount--;
-        //        }
-        //    }
-        //}
-
-        foreach(int plateID in currentState.PlateStateIndexList)
+        // This function needs to be fast...
+        // Assumes only Mushrooms and Onions
+        bool[] plateUsed = new bool[currentState.PlateStateIndexList.Count];
+        foreach (List<int> count in IngredientCountsPerRecipe)
         {
-            PlateState plate = currentState.ItemStateList[plateID] as PlateState;
-            if (plate.IsSubmitted)
+            bool found = false;
+            for(int plateIndex = 0; plateIndex < currentState.PlateStateIndexList.Count; ++plateIndex)
             {
-                int onionCount = 2;
-                int mushroomCount = 1;
-
-                MealState meal = currentState.ItemStateList[plate.mealID] as MealState;
-
-                foreach (int ingredientID in meal.ContainedIngredientIDs)
+                int plateID = currentState.PlateStateIndexList[plateIndex];
+                PlateState plate = currentState.ItemStateList[plateID] as PlateState;
+                if (plate.IsSubmitted && !plateUsed[plateIndex])
                 {
-                    if ((currentState.ItemStateList[ingredientID] as IngredientState).ingredientType == IngredientType.ONION)
-                        onionCount--;
-                    if ((currentState.ItemStateList[ingredientID] as IngredientState).ingredientType == IngredientType.MUSHROOM)
-                        mushroomCount--;
+                    MealState meal = currentState.ItemStateList[plate.mealID] as MealState;
+                    int onionCount = 0;
+                    int mushroomCount = 0;
+                    foreach (int ingredientID in meal.ContainedIngredientIDs)
+                    {
+                        IngredientState iState = currentState.ItemStateList[ingredientID] as IngredientState;
+                        if (iState.ingredientType == IngredientType.ONION)
+                        {
+                            ++onionCount;
+                        }
+                        else
+                        {
+                            ++mushroomCount;
+                        }
+                    }
+
+                    if(onionCount == count[(int)IngredientType.ONION]
+                       && mushroomCount == count[(int)IngredientType.MUSHROOM])
+                    {
+                        found = true;
+                        plateUsed[plateIndex] = true;
+                        break;
+                    }
                 }
-                return onionCount == 0 && mushroomCount == 0;
+            }
+
+            if(!found)
+            {
+                return false;
             }
         }
 
-        return false;
+        return true;
+    }
+
+    public override string ToString()
+    {
+        return "Goal(" + GoalRecipes.Select(recipe => recipe.ListToString()).ListToString() + ")";
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class Utility
@@ -30,5 +31,10 @@ public static class Utility
             seed ^= value + ((int)0x9e3779b9) + (seed << 6) + (seed >> 2);
             return seed;
         }
+    }
+
+    public static string ListToString<T>(this IEnumerable<T> list)
+    {
+        return "[" + string.Join(", ", list.Select(obj => obj.ToString()).ToArray()) + "]";
     }
 }
