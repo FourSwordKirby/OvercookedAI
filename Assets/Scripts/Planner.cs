@@ -22,6 +22,7 @@ public class Planner {
     public int NumberClosedStates = 0;
     public PriorityQueue<AIState> OpenSet = new PriorityQueue<AIState>();
     public Dictionary<AIState, AIState> AllStates = new Dictionary<AIState, AIState>(new AIStateComparator());
+    public int totalValidActions = 0;
     public System.Diagnostics.Stopwatch Watch = new System.Diagnostics.Stopwatch();
 
     public Planner(Goal goal, AIState startState, Heuristic h, float epsilon = 2f)
@@ -48,6 +49,8 @@ public class Planner {
         }
 
         List<Action> validActions = GetValidActions(currentState);
+        totalValidActions += validActions.Count;
+
         foreach (Action action in validActions)
         {
             AIState newState = action.ApplyAction(currentState);
@@ -95,6 +98,7 @@ public class Planner {
         Debug.Log("Searching to completion, current goal is: " + TargetGoal + ", heuristic is: " + HeuristicStrategy);
         methodWatch.Start();
         Watch.Start();
+
         while (OpenSet.Count > 0)
         {
             AIState currentState = OpenSet.Dequeue().Value;
@@ -119,6 +123,7 @@ public class Planner {
                 plan.Reverse();
                 Plan = plan;
                 IsFinished = true;
+                Debug.Log("Total Valid Actions Over Lifetime: " + totalValidActions + " found");
                 Debug.Log("Plan of size " + plan.Count + " found.");
                 Debug.Log("Search completed in: " + (Watch.ElapsedMilliseconds / 1000f) + " sec");
                 Debug.Log("Closed set: " + NumberClosedStates + " | Open set:" + (AllStates.Count - NumberClosedStates));
@@ -435,6 +440,7 @@ public class Planner {
                 }
             }
         }
+
 
         return validActions;
     }
