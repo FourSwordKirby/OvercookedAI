@@ -38,7 +38,6 @@ public class Player : MonoBehaviour {
 
     private void Awake()
     {
-        HoldPosition = transform.Find("Hold Position").position;
         anim = GetComponent<Animator>();
     }
 
@@ -48,7 +47,11 @@ public class Player : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
+        HoldPosition = transform.Find("Hold Position").position;
+        if (IsHolding)
+            HoldingItem.transform.position = HoldPosition;
         anim.SetBool("IsHolding", IsHolding);
 	}
 
@@ -61,7 +64,6 @@ public class Player : MonoBehaviour {
         else
         {
             HoldingItem = GetItemManager().ItemList[s.HoldingItemID];
-            HoldingItem.transform.position = HoldPosition;
         }
     }
 

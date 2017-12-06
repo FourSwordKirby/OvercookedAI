@@ -8,11 +8,11 @@ public class IngredientSpawner : MonoBehaviour {
     public const int MAX_NUMBER_OF_INGREDIENTS = 2;
     public IngredientType MyIngredientType;
     public Ingredient IngredientPrefab;
-    public List<Item> SpawnedIngredients;
+    public List<Ingredient> SpawnedIngredients;
 
     private void Awake()
     {
-        SpawnedIngredients = new List<Item>();
+        SpawnedIngredients = new List<Ingredient>();
         for (int i = 0; i < MAX_NUMBER_OF_INGREDIENTS; ++i)
         {
             Ingredient ing = Instantiate<Ingredient>(IngredientPrefab, transform);

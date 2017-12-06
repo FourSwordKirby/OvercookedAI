@@ -61,7 +61,7 @@ public class IdleAction : AdvanceTimeAction
 //Can only spawn an ingredient if your hands are empty
 public class SpawnAction : AdvanceTimeAction
 {
-    IngredientType spawnType;
+    public IngredientType spawnType;
     public SpawnAction(IngredientType type)
     {
         spawnType = type;
@@ -113,7 +113,7 @@ public class SpawnAction : AdvanceTimeAction
 //Picking up an item
 public class PickUpAction : AdvanceTimeAction
 {
-    int id;
+    public int id;
 
     public PickUpAction(int id)
     {
@@ -187,7 +187,7 @@ public class PickUpAction : AdvanceTimeAction
 //Dropping off an item at the id having nothing left in hand
 public class DropOffAction : AdvanceTimeAction
 {
-    int id;
+    public int id;
 
     public DropOffAction(int id)
     {
@@ -297,7 +297,7 @@ public class DropOffAction : AdvanceTimeAction
 //Used for things like moving a soup from a plate to a pot etc.
 public class TransferAction : AdvanceTimeAction
 {
-    int id;
+    public int id;
 
     public TransferAction(int id)
     {
@@ -434,7 +434,7 @@ public class TransferAction : AdvanceTimeAction
 //Used to prepare an ingredient
 public class PrepareAction : AdvanceTimeAction
 {
-    int id;
+    public int id;
 
     public PrepareAction(int id)
     {

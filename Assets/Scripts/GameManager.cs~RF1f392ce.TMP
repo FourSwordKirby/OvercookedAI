@@ -291,22 +291,13 @@ public class GameManager : MonoBehaviour {
         }
         if (a is DropOffAction)
         {
-            DropOffAction dropOff = a as DropOffAction;
-            HighlightedObject = IM.ItemList[dropOff.id].gameObject;
+            DropOffAction DropOff = a as DropOffAction;
+            HighlightedObject = IM.ItemList[DropOff.id].gameObject;
         }
         if (a is TransferAction)
         {
             TransferAction transfer = a as TransferAction;
             HighlightedObject = IM.ItemList[transfer.id].gameObject;
-        }
-        if (a is PrepareAction)
-        {
-            PrepareAction prep = a as PrepareAction;
-            HighlightedObject = IM.ItemList[prep.id].gameObject;
-        }
-        if (a is SubmitOrderAction)
-        {
-            HighlightedObject = IM.SubmittedTableRef.gameObject;
         }
 
         Highlighter.transform.position = new Vector3(
