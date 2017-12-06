@@ -54,8 +54,7 @@ public class Ingredient : Item {
             transform.position = new Vector3(transform.position.x, -2f, transform.position.z);
             return;
         }
-
-        transform.position = new Vector3(transform.position.x, .8f, transform.position.z);
+        
         switch (MyIngredientType)
         {
             case IngredientType.ONION:
