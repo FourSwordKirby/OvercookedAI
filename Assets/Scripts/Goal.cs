@@ -39,7 +39,7 @@ public class FinishedMealGoal : Goal
 
     public FinishedMealGoal(List<List<IngredientType>> recipes)
     {
-        GoalRecipes = recipes;
+        GoalRecipes = recipes.Select(r => new List<IngredientType>(r)).ToList();
         IngredientCountsPerRecipe = new List<List<int>>();
         foreach (List<IngredientType> recipe in recipes)
         {
@@ -97,7 +97,7 @@ public class FinishedMealGoal : Goal
                 return false;
             }
         }
-
+        
         return true;
     }
 
@@ -105,6 +105,7 @@ public class FinishedMealGoal : Goal
     {
         return "Goal(" + GoalRecipes.Select(recipe => recipe.ListToString()).ListToString() + ")";
     }
+    
 }
 
 
